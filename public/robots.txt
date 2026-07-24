@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /keranjang
+
+Sitemap: https://browkyoutdoor.com/sitemap.xml
