@@ -44,7 +44,7 @@ class PorterController extends Controller
         ]);
 
         $data = $request->except('image');
-        $data['slug'] = Str::slug($request->name) . '-' . time();
+        $data['slug'] = $this->generateUniqueSlug($request->name);
 
         if ($request->hasFile('image')) {
             $data['image'] = $this->uploadAndOptimizeImage($request->file('image'), 'porters');
@@ -77,6 +77,9 @@ class PorterController extends Controller
         ]);
 
         $data = $request->except('image');
+        if ($porter->name !== $request->name) {
+            $data['slug'] = $this->generateUniqueSlug($request->name, $porter->id);
+        }
 
         if ($request->hasFile('image')) {
             // Delete old image if exists
@@ -103,5 +106,19 @@ class PorterController extends Controller
         $porter->delete();
 
         return redirect()->route('admin.porters.index')->with('success', 'Paket Porter berhasil dihapus.');
+    }
+
+    private function generateUniqueSlug(string $name, $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $count = 1;
+
+        while (Porter::where('slug', $slug)->where('id', '!=', $ignoreId)->exists()) {
+            $slug = "{$baseSlug}-{$count}";
+            $count++;
+        }
+
+        return $slug;
     }
 }

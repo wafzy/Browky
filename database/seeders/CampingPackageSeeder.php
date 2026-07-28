@@ -81,7 +81,7 @@ class CampingPackageSeeder extends Seeder
         ];
 
         foreach ($packages as $package) {
-            $package['slug'] = Str::slug($package['name']) . '-' . rand(1000, 9999);
+            $package['slug'] = Str::slug($package['name']);
             CampingPackage::create($package);
         }
     }

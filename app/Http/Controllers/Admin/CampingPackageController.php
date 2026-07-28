@@ -45,7 +45,7 @@ class CampingPackageController extends Controller
             'special_badge' => 'nullable|string|max:255',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']) . '-' . time();
+        $validated['slug'] = $this->generateUniqueSlug($validated['name']);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $this->uploadAndOptimizeImage($request->file('image'), 'camping_packages');
@@ -78,8 +78,9 @@ class CampingPackageController extends Controller
             'special_badge' => 'nullable|string|max:255',
         ]);
 
-        // Do not update slug automatically on edit to preserve SEO/links, 
-        // unless requested.
+        if ($campingPackage->name !== $request->name) {
+            $validated['slug'] = $this->generateUniqueSlug($request->name, $campingPackage->id);
+        }
 
         if ($request->hasFile('image')) {
             if ($campingPackage->image) {
@@ -102,5 +103,19 @@ class CampingPackageController extends Controller
         $campingPackage->delete();
 
         return redirect()->route('admin.camping-packages.index')->with('success', 'Paket Camping berhasil dihapus.');
+    }
+
+    private function generateUniqueSlug(string $name, $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $count = 1;
+
+        while (CampingPackage::where('slug', $slug)->where('id', '!=', $ignoreId)->exists()) {
+            $slug = "{$baseSlug}-{$count}";
+            $count++;
+        }
+
+        return $slug;
     }
 }

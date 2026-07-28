@@ -83,8 +83,36 @@ class FrontendController extends Controller
     public function mountainDetail($slug)
     {
         $mountain = \App\Models\Mountain::where('slug', $slug)->firstOrFail();
+
+        // Clean mountain name snippet (e.g. "Prau" from "Gunung Prau")
+        $cleanName = str_replace(['Gunung ', 'gunung '], '', $mountain->name);
+
+        // Porters for this mountain
+        $porters = \App\Models\Porter::where('mountain', 'LIKE', "%{$cleanName}%")
+            ->orWhere('name', 'LIKE', "%{$cleanName}%")
+            ->orWhere('description', 'LIKE', "%{$cleanName}%")
+            ->get();
+        if ($porters->isEmpty()) {
+            $porters = \App\Models\Porter::where('status', 'Available')->take(5)->get();
+        }
+
+        // Camping Packages for this mountain
+        $campingPackages = \App\Models\CampingPackage::where('tags', 'LIKE', "%{$cleanName}%")
+            ->orWhere('name', 'LIKE', "%{$cleanName}%")
+            ->orWhere('description', 'LIKE', "%{$cleanName}%")
+            ->get();
+        if ($campingPackages->isEmpty()) {
+            $campingPackages = \App\Models\CampingPackage::where('status', 'Available')->take(5)->get();
+        }
+
+        // Recommended Rental Gear / Products
+        $products = \App\Models\Product::with('images')->latest()->take(5)->get();
+
         return Inertia::render('MountainDetail', [
-            'mountain' => $mountain
+            'mountain' => $mountain,
+            'porters' => $porters,
+            'campingPackages' => $campingPackages,
+            'products' => $products,
         ]);
     }
 

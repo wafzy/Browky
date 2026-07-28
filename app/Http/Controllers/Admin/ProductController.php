@@ -43,7 +43,7 @@ class ProductController extends Controller
         ]);
 
         $data = $request->except(['cover_image']);
-        $data['slug'] = Str::slug($request->name) . '-' . time();
+        $data['slug'] = $this->generateUniqueSlug($request->name);
 
         // Process Cover Image
         if ($request->hasFile('cover_image')) {
@@ -78,6 +78,9 @@ class ProductController extends Controller
         ]);
 
         $data = $request->except(['cover_image']);
+        if ($product->name !== $request->name) {
+            $data['slug'] = $this->generateUniqueSlug($request->name, $product->id);
+        }
 
         // Process Cover Image
         if ($request->hasFile('cover_image')) {
@@ -105,5 +108,19 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus.');
+    }
+
+    private function generateUniqueSlug(string $name, $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $count = 1;
+
+        while (Product::where('slug', $slug)->where('id', '!=', $ignoreId)->exists()) {
+            $slug = "{$baseSlug}-{$count}";
+            $count++;
+        }
+
+        return $slug;
     }
 }

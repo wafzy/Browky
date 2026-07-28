@@ -16,6 +16,11 @@ interface Mountain {
   elevation?: string;
   description?: string;
   image?: string;
+  image_1?: string;
+  image_2?: string;
+  image_3?: string;
+  image_4?: string;
+  image_5?: string;
 }
 
 export default function Edit({ mountain }: { mountain: Mountain }) {
@@ -26,30 +31,53 @@ export default function Edit({ mountain }: { mountain: Mountain }) {
     elevation: mountain.elevation || '',
     description: mountain.description || '',
     image: null as File | null,
+    image_1: null as File | null,
+    image_2: null as File | null,
+    image_3: null as File | null,
+    image_4: null as File | null,
+    image_5: null as File | null,
   });
 
-  const currentImg = mountain.image
-    ? (mountain.image.startsWith('http') ? mountain.image : `/storage/${mountain.image}`)
-    : null;
+  const getInitialImg = (fieldVal?: string) => {
+    if (!fieldVal) return null;
+    return fieldVal.startsWith('http') ? fieldVal : `/storage/${fieldVal}`;
+  };
 
-  const [preview, setPreview] = useState<string | null>(currentImg);
+  const [previewCover, setPreviewCover] = useState<string | null>(getInitialImg(mountain.image));
+  const [previews, setPreviews] = useState<{ [key: string]: string | null }>({
+    image_1: getInitialImg(mountain.image_1),
+    image_2: getInitialImg(mountain.image_2),
+    image_3: getInitialImg(mountain.image_3),
+    image_4: getInitialImg(mountain.image_4),
+    image_5: getInitialImg(mountain.image_5),
+  });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setData('image', file);
-      setPreview(URL.createObjectURL(file));
+  const handleImageChange = (key: 'image' | 'image_1' | 'image_2' | 'image_3' | 'image_4' | 'image_5', file: File | null) => {
+    if (file) {
+      setData(key, file);
+      const url = URL.createObjectURL(file);
+      if (key === 'image') setPreviewCover(url);
+      else setPreviews(prev => ({ ...prev, [key]: url }));
     }
+  };
+
+  const handleRemoveImage = (key: 'image' | 'image_1' | 'image_2' | 'image_3' | 'image_4' | 'image_5') => {
+    setData(key, null);
+    if (key === 'image') setPreviewCover(null);
+    else setPreviews(prev => ({ ...prev, [key]: null }));
   };
 
   const handleReset = () => {
     reset();
-    setPreview(currentImg);
+    setPreviewCover(getInitialImg(mountain.image));
+    setPreviews({
+      image_1: getInitialImg(mountain.image_1),
+      image_2: getInitialImg(mountain.image_2),
+      image_3: getInitialImg(mountain.image_3),
+      image_4: getInitialImg(mountain.image_4),
+      image_5: getInitialImg(mountain.image_5),
+    });
     toast.info("Perubahan form telah di-reset.");
-  };
-
-  const handleSaveDraft = () => {
-    toast.success("Draf perubahan destinasi berhasil disimpan!");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -63,6 +91,14 @@ export default function Edit({ mountain }: { mountain: Mountain }) {
       }
     });
   };
+
+  const articleImagesConfig = [
+    { key: 'image_1' as const, label: 'Gambar Artikel 1: Panorama Puncak' },
+    { key: 'image_2' as const, label: 'Gambar Artikel 2: Akses Transportasi & Basecamp' },
+    { key: 'image_3' as const, label: 'Gambar Artikel 3: Camping Ground & Musim' },
+    { key: 'image_4' as const, label: 'Gambar Artikel 4: Trek & Jalur Pendakian' },
+    { key: 'image_5' as const, label: 'Gambar Artikel 5: Service Porter & Fitting Alat' },
+  ];
 
   return (
     <AdminLayout title="Edit Destinasi Gunung">
@@ -84,14 +120,6 @@ export default function Edit({ mountain }: { mountain: Mountain }) {
               <span>Reset</span>
             </Button>
             <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleSaveDraft}
-              className="h-9 px-3.5 text-xs font-medium cursor-pointer rounded-md shrink-0"
-            >
-              <span>Save Draft</span>
-            </Button>
-            <Button 
               type="submit"
               form="edit-mountain-form"
               disabled={processing}
@@ -108,18 +136,18 @@ export default function Edit({ mountain }: { mountain: Mountain }) {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Informasi Gunung</CardTitle>
-                <CardDescription>Detail lokasi, gambar utama, dan deskripsi pendakian.</CardDescription>
+                <CardTitle>Informasi Utama</CardTitle>
+                <CardDescription>Detail lokasi, gambar hero utama, dan deskripsi pendakian.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Mountain Thumbnail Section */}
+                {/* Cover Main Thumbnail */}
                 <Field>
-                  <FieldLabel className="text-xs font-semibold text-foreground">Thumbnail Cover</FieldLabel>
+                  <FieldLabel className="text-xs font-semibold text-foreground">Cover Utama Destinasi (Hero Header)</FieldLabel>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-1">
-                    <label htmlFor="image-upload" className="relative size-24 shrink-0 block cursor-pointer group">
+                    <label htmlFor="cover-upload" className="relative size-24 shrink-0 block cursor-pointer group">
                       <div className="size-full rounded-2xl border border-dashed border-border bg-muted/40 hover:bg-muted/70 transition flex items-center justify-center overflow-hidden">
-                        {preview ? (
-                          <img src={preview} alt="Thumbnail preview" className="h-full w-full object-cover" />
+                        {previewCover ? (
+                          <img src={previewCover} alt="Cover preview" className="h-full w-full object-cover" />
                         ) : (
                           <ImagePlus className="size-7 text-muted-foreground/60 group-hover:scale-110 transition-transform duration-200" />
                         )}
@@ -127,24 +155,17 @@ export default function Edit({ mountain }: { mountain: Mountain }) {
                     </label>
 
                     <div className="flex flex-col gap-1">
-                      <h4 className="text-xs font-semibold text-foreground">Cover Destinasi</h4>
+                      <h4 className="text-xs font-semibold text-foreground">Gambar Header Hero</h4>
                       <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        JPG atau PNG. Disarankan lanskap/persegi dengan resolusi tinggi.
+                        Tampil di bagian atas hero halaman detail gunung.
                       </p>
                       <div className="flex items-center gap-3 pt-1.5">
-                        <label htmlFor="image-upload" className="inline-flex items-center justify-center h-8 px-3 text-xs font-medium bg-background border border-input rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer transition shadow-2xs">
-                          <span>Upload image</span>
+                        <label htmlFor="cover-upload" className="inline-flex items-center justify-center h-8 px-3 text-xs font-medium bg-background border border-input rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer transition shadow-2xs">
+                          <span>{previewCover ? 'Ganti Cover' : 'Upload Cover'}</span>
                         </label>
-                        <Input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                        {preview && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setData('image', null);
-                              setPreview(null);
-                            }}
-                            className="text-xs text-muted-foreground hover:text-destructive transition font-medium cursor-pointer"
-                          >
+                        <Input id="cover-upload" type="file" accept="image/*" onChange={e => handleImageChange('image', e.target.files?.[0] || null)} className="hidden" />
+                        {previewCover && (
+                          <button type="button" onClick={() => handleRemoveImage('image')} className="text-xs text-muted-foreground hover:text-destructive transition font-medium cursor-pointer">
                             Remove
                           </button>
                         )}
@@ -171,16 +192,53 @@ export default function Edit({ mountain }: { mountain: Mountain }) {
                   <FieldLabel htmlFor="description">Deskripsi Destinasi</FieldLabel>
                   <Textarea 
                     id="description" 
-                    rows={5} 
+                    rows={4} 
                     value={data.description} 
                     onChange={e => setData('description', e.target.value)} 
                   />
                 </Field>
               </CardContent>
             </Card>
+
+            {/* Article Images Upload Card (Gambar 1 - 5) */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Gambar Ilustrasi Artikel (Gambar 1 – 5)</CardTitle>
+                <CardDescription>Upload foto spesifik untuk disisipkan di dalam artikel panduan detail gunung.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                {articleImagesConfig.map(({ key, label }) => (
+                  <div key={key} className="p-4 rounded-xl border border-border bg-muted/20 space-y-3">
+                    <FieldLabel className="text-xs font-semibold text-foreground">{label}</FieldLabel>
+                    <div className="flex items-center gap-4">
+                      <label htmlFor={`upload-${key}`} className="relative h-20 w-32 shrink-0 block cursor-pointer group">
+                        <div className="size-full rounded-lg border border-dashed border-border bg-background hover:bg-muted/50 transition flex items-center justify-center overflow-hidden">
+                          {previews[key] ? (
+                            <img src={previews[key]!} alt={label} className="h-full w-full object-cover" />
+                          ) : (
+                            <ImagePlus className="size-6 text-muted-foreground/60 group-hover:scale-110 transition-transform duration-200" />
+                          )}
+                        </div>
+                      </label>
+                      <div className="flex flex-col gap-1">
+                        <label htmlFor={`upload-${key}`} className="inline-flex items-center justify-center h-8 px-3 text-xs font-medium bg-background border border-input rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer transition w-fit shadow-2xs">
+                          <span>{previews[key] ? 'Ganti Foto' : 'Upload Foto'}</span>
+                        </label>
+                        <Input id={`upload-${key}`} type="file" accept="image/*" onChange={e => handleImageChange(key, e.target.files?.[0] || null)} className="hidden" />
+                        {previews[key] && (
+                          <button type="button" onClick={() => handleRemoveImage(key)} className="text-xs text-muted-foreground hover:text-destructive transition font-medium cursor-pointer w-fit">
+                            Hapus Foto
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Right Column: Outer container with dashed border */}
+          {/* Right Column: Specification & Location Card */}
           <div className="p-4 rounded-xl border border-dashed border-border/80 bg-muted/10 space-y-4">
             <Card>
               <CardHeader>
@@ -229,14 +287,6 @@ export default function Edit({ mountain }: { mountain: Mountain }) {
             className="h-10 px-3 text-xs font-medium cursor-pointer rounded-md shrink-0"
           >
             <span>Reset</span>
-          </Button>
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={handleSaveDraft}
-            className="h-10 px-3 text-xs font-medium cursor-pointer rounded-md shrink-0"
-          >
-            <span>Draft</span>
           </Button>
           <Button 
             type="submit"
