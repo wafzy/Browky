@@ -65,7 +65,7 @@ interface MountainDetailProps {
 export default function MountainDetail({ mountain, products = [], porters = [], campingPackages = [] }: MountainDetailProps) {
     const imgSrc = mountain.image
         ? (mountain.image.startsWith('http') ? mountain.image : `/storage/${mountain.image}`)
-        : 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80';
+        : 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=75&fm=webp';
 
     const absoluteImg = mountain.image
         ? (mountain.image.startsWith('http') ? mountain.image : `https://browkyoutdoor.com/storage/${mountain.image}`)
@@ -76,11 +76,11 @@ export default function MountainDetail({ mountain, products = [], porters = [], 
         return fieldVal.startsWith('http') ? fieldVal : `/storage/${fieldVal}`;
     };
 
-    const img1 = getImg(mountain.image_1, "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80");
-    const img2 = getImg(mountain.image_2, "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1400&q=80");
-    const img3 = getImg(mountain.image_3, "https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=1400&q=80");
-    const img4 = getImg(mountain.image_4, "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=1400&q=80");
-    const img5 = getImg(mountain.image_5, "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1400&q=80");
+    const img1 = getImg(mountain.image_1, "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=70&fm=webp");
+    const img2 = getImg(mountain.image_2, "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=70&fm=webp");
+    const img3 = getImg(mountain.image_3, "https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=70&fm=webp");
+    const img4 = getImg(mountain.image_4, "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=800&q=70&fm=webp");
+    const img5 = getImg(mountain.image_5, "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=70&fm=webp");
 
     const mountainDisplayName = mountain.name.toLowerCase().includes('gunung') ? mountain.name : `Gunung ${mountain.name}`;
     const cleanName = mountain.name.replace(/gunung/i, '').trim();
@@ -338,7 +338,7 @@ export default function MountainDetail({ mountain, products = [], porters = [], 
 
             {/* 1. HERO SECTION */}
             <div className="relative w-full h-[65vh] md:h-[75vh] overflow-hidden bg-gray-950">
-                <img src={imgSrc} alt={mountain.name} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                <img src={imgSrc} alt={mountain.name} className="absolute inset-0 w-full h-full object-cover opacity-80" fetchPriority="high" loading="eager" decoding="async" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
 
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -1003,13 +1003,13 @@ export default function MountainDetail({ mountain, products = [], porters = [], 
                         {/* Grid 4 Cards Adjusting to Container */}
                         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6 pt-2">
                             {[
-                                { name: 'Gunung Prau', height: '2.565 mdpl', loc: 'Wonosobo', slug: 'gunung-prau', img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=500&q=80' },
-                                { name: 'Gunung Sindoro', height: '3.136 mdpl', loc: 'Temanggung', slug: 'gunung-sindoro', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=500&q=80' },
-                                { name: 'Gunung Sumbing', height: '3.371 mdpl', loc: 'Wonosobo', slug: 'gunung-sumbing', img: 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=500&q=80' },
-                                { name: 'Gunung Bismo', height: '2.365 mdpl', loc: 'Wonosobo', slug: 'gunung-bismo', img: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=500&q=80' },
-                                { name: 'Gunung Pakuwaja', height: '2.421 mdpl', loc: 'Wonosobo', slug: 'gunung-pakuwaja', img: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=500&q=80' },
-                                { name: 'Gunung Kembang', height: '2.340 mdpl', loc: 'Wonosobo', slug: 'gunung-kembang', img: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=500&q=80' },
-                                { name: 'Gunung Merbabu', height: '3.145 mdpl', loc: 'Boyolali', slug: 'gunung-merbabu', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=500&q=80' },
+                                { name: 'Gunung Prau', height: '2.565 mdpl', loc: 'Wonosobo', slug: 'gunung-prau', img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=70&fm=webp' },
+                                { name: 'Gunung Sindoro', height: '3.136 mdpl', loc: 'Temanggung', slug: 'gunung-sindoro', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=70&fm=webp' },
+                                { name: 'Gunung Sumbing', height: '3.371 mdpl', loc: 'Wonosobo', slug: 'gunung-sumbing', img: 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=400&q=70&fm=webp' },
+                                { name: 'Gunung Bismo', height: '2.365 mdpl', loc: 'Wonosobo', slug: 'gunung-bismo', img: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=400&q=70&fm=webp' },
+                                { name: 'Gunung Pakuwaja', height: '2.421 mdpl', loc: 'Wonosobo', slug: 'gunung-pakuwaja', img: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=400&q=70&fm=webp' },
+                                { name: 'Gunung Kembang', height: '2.340 mdpl', loc: 'Wonosobo', slug: 'gunung-kembang', img: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=70&fm=webp' },
+                                { name: 'Gunung Merbabu', height: '3.145 mdpl', loc: 'Boyolali', slug: 'gunung-merbabu', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=70&fm=webp' },
                             ].filter(m => !mountain?.slug || m.slug !== mountain.slug).slice(0, 4).map((m, idx) => (
                                 <div key={idx} className="group relative overflow-hidden transition-all duration-300">
                                     <Link href={`/gunung/${m.slug}`} className="block">

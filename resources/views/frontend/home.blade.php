@@ -71,15 +71,25 @@
 ============================================================ --}}
 <section class="relative w-full overflow-hidden" style="height: 100vh;">
 
-    <!-- Background Video -->
+    <!-- Background Video (Desktop Only for Speed & Payload Optimization) -->
     <video
-        class="absolute inset-0 w-full h-full object-cover"
+        class="absolute inset-0 w-full h-full object-cover hidden md:block"
         autoplay muted loop playsinline preload="none"
         poster="/images/hero-fallback.jpg"
     >
         <source src="/videos/loop-2.webm" type="video/webm">
         <source src="/videos/loop-2.mp4" type="video/mp4">
     </video>
+
+    <!-- Mobile Hero Fallback Image (Prevents 5.5MB Video Payload on Mobile) -->
+    <img 
+        src="/images/hero-fallback.jpg" 
+        alt="Sewa Alat Pendakian & Porter Gunung Wonosobo" 
+        class="absolute inset-0 w-full h-full object-cover md:hidden" 
+        fetchpriority="high" 
+        loading="eager" 
+        decoding="async" 
+    />
 
     <!-- Gradient Overlay -->
     <div class="absolute inset-0 hero-overlay"></div>
@@ -127,18 +137,18 @@
 
             <div class="flex" style="width: max-content">
                 <div class="animate-marquee flex items-center gap-16 sm:gap-24 pr-16 sm:pr-24">
-                    <img src="/images/Logo/eiger-logo.png" alt="Eiger" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
-                    <img src="/images/Logo/consina-logo.png" alt="Consina" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
-                    <img src="/images/Logo/logo-arei.webp" alt="Arei" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
-                    <img src="/images/Logo/antarestar-logo.png" alt="Antarestar" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
-                    <img src="/images/Logo/Arcteryx-Logo.png" alt="Arc'teryx" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
+                    <img src="/images/Logo/eiger-logo.png" alt="Eiger" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
+                    <img src="/images/Logo/consina-logo.png" alt="Consina" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
+                    <img src="/images/Logo/logo-arei.webp" alt="Arei" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
+                    <img src="/images/Logo/antarestar-logo.png" alt="Antarestar" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
+                    <img src="/images/Logo/Arcteryx-Logo.png" alt="Arc'teryx" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
                     
                     <!-- Duplicate set for seamless loop -->
-                    <img src="/images/Logo/eiger-logo.png" alt="Eiger" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
-                    <img src="/images/Logo/consina-logo.png" alt="Consina" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
-                    <img src="/images/Logo/logo-arei.webp" alt="Arei" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
-                    <img src="/images/Logo/antarestar-logo.png" alt="Antarestar" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
-                    <img src="/images/Logo/Arcteryx-Logo.png" alt="Arc'teryx" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
+                    <img src="/images/Logo/eiger-logo.png" alt="Eiger" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
+                    <img src="/images/Logo/consina-logo.png" alt="Consina" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
+                    <img src="/images/Logo/logo-arei.webp" alt="Arei" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
+                    <img src="/images/Logo/antarestar-logo.png" alt="Antarestar" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
+                    <img src="/images/Logo/Arcteryx-Logo.png" alt="Arc'teryx" width="120" height="40" loading="lazy" decoding="async" class="h-9 sm:h-11 md:h-12 w-auto object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300 transform hover:scale-105" aria-hidden="true">
                 </div>
             </div>
         </div>
