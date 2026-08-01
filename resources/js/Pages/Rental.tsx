@@ -161,10 +161,10 @@ export default function Rental({ products = [], categories = [], searchMountain:
             </Head>
 
             {/* PAGE HEADER & FILTER */}
-            <div className="bg-white pt-10">
+            <div className="bg-white pt-4 sm:pt-10">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
                     {/* Breadcrumbs */}
-                    <nav className="flex text-xs md:text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+                    <nav className="flex text-sm md:text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
                         <ol className="flex items-center space-x-1.5 md:space-x-2">
                             <li>
                                 <Link href="/" className="hover:text-gray-900 transition">
@@ -182,7 +182,7 @@ export default function Rental({ products = [], categories = [], searchMountain:
                     <h1 className="text-4xl font-anton tracking-wide uppercase text-gray-900 mb-4">
                         Sewa Alat Pendakian {searchMountain ? getMountainHeadingText() : ''} Browky Outdoor
                     </h1>
-                    
+
                     {/* Search Results Counter and Category Filter (Porter Style) */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
                         <div className="text-base text-gray-600">
@@ -190,14 +190,14 @@ export default function Rental({ products = [], categories = [], searchMountain:
                         </div>
 
                         <div className="flex gap-2 overflow-x-auto scrollbar-none">
-                            <button 
+                            <button
                                 onClick={() => setSelectedCategory('all')}
                                 className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCategory === 'all' ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
                             >
                                 Semua
                             </button>
                             {(categories || []).filter(Boolean).map((category) => (
-                                <button 
+                                <button
                                     key={category}
                                     onClick={() => setSelectedCategory(category)}
                                     className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCategory === category ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
@@ -215,7 +215,7 @@ export default function Rental({ products = [], categories = [], searchMountain:
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
 
                     {/* Product Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 ">
                         {filteredProducts.map((product) => {
                             if (!product) return null;
                             const isFav = product.id ? favorites.includes(String(product.id)) : false;
@@ -226,12 +226,12 @@ export default function Rental({ products = [], categories = [], searchMountain:
                             const badge = product.special_badge ? getBadgeConfig(product.special_badge) : null;
 
                             return (
-                                <div 
-                                    key={product.id} 
+                                <div
+                                    key={product.id}
                                     className="group relative overflow-hidden transition-all duration-300"
                                 >
                                     {/* Favorite toggle */}
-                                    <button 
+                                    <button
                                         onClick={(e) => toggleFavorite(e, {
                                             id: String(product.id || ''),
                                             type: 'product',
@@ -248,11 +248,11 @@ export default function Rental({ products = [], categories = [], searchMountain:
 
                                     <Link href={`/sewa-alat/${product.slug || ''}`} className="block">
                                         <div className="relative aspect-square w-full overflow-hidden bg-gray-50 rounded-sm">
-                                            <img 
-                                                src={imgSrc} 
-                                                alt={product.name || 'Alat Pendakian'} 
+                                            <img
+                                                src={imgSrc}
+                                                alt={product.name || 'Alat Pendakian'}
                                                 className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
-                                                loading="lazy" 
+                                                loading="lazy"
                                             />
                                             {badge && (
                                                 <div className={`absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-white rounded bg-gradient-to-r ${badge.colors}`}>
@@ -272,7 +272,7 @@ export default function Rental({ products = [], categories = [], searchMountain:
                                             <h3 className="text-sm font-semibold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
                                                 {product.name}
                                             </h3>
-                                            <div className="flex items-baseline text-sm font-semibold text-red-600">
+                                            <div className="flex items-baseline text-sm font-semibold text-red-600 mb-2">
                                                 <span>Rp {product.price_per_day ? Number(product.price_per_day).toLocaleString('id-ID') : '0'}</span>
                                                 <span className="text-sm text-gray-400 font-normal ml-1">/ hari</span>
                                             </div>

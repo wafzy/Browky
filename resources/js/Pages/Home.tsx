@@ -889,7 +889,7 @@ export default function Home({
                     {/* Product Cards Row */}
                     <div
                         ref={productGridRef}
-                        className="flex gap-6 overflow-x-auto pb-4 scroll-smooth scrollbar-none"
+                        className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 scroll-smooth scrollbar-none"
                     >
                         {filteredProducts.map((product) => {
                             const isFav = favorites.includes(product.id.toString());
@@ -943,10 +943,10 @@ export default function Home({
                                             )}
                                         </div>
                                         <div className="pt-4 space-y-1">
-                                            <h3 className="text-sm font-semibold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
+                                            <h3 className="text-base font-semibold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
                                                 {product.name}
                                             </h3>
-                                            <div className="flex items-baseline text-sm font-semibold text-red-600">
+                                            <div className="flex items-baseline text-base font-medium text-red-600">
                                                 <span>Rp {Number(product.price_per_day).toLocaleString('id-ID')}</span>
                                                 <span className="text-sm text-gray-400 font-normal ml-1">/ hari</span>
                                             </div>
@@ -965,8 +965,8 @@ export default function Home({
 
                     {/* Mobile: View all Link */}
                     <div className="mt-6 sm:hidden text-center">
-                        <Link href="/sewa-alat" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary underline underline-offset-4">
-                            Lihat semua alat <ArrowRight className="w-4 h-4" />
+                        <Link href="/sewa-alat" className="inline-flex items-center gap-1.5 text-base font-medium text-primary underline underline-offset-4">
+                            Lihat semua <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
                 </div>
@@ -1332,15 +1332,15 @@ export default function Home({
             {/* CTA BANNER */}
             <section className="relative overflow-hidden bg-zinc-800 py-16 text-white">
                 {/* Background accents */}
-                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,white_1px,transparent_1px),radial-gradient(circle_at_80%_20%,white_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+                <div className="absolute inset-0 opacity-10"></div>
 
                 <div className="max-w-7xl mx-auto px-4 md:px-8 w-full relative z-10">
                     <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div className="text-center md:text-left max-w-lg space-y-3">
+                        <div className="text-left md:text-left max-w-lg space-y-3">
                             <h2 className="text-4xl font-anton tracking-wide uppercase leading-tight">
                                 Siap Menjelajahi <span className="text-white">Keindahan Wonosobo?</span>
                             </h2>
-                            <p className="text-base text-zinc-300 leading-relaxed">
+                            <p className="text-lg text-zinc-300 leading-relaxed">
                                 Dapatkan perlengkapan terbaik dan layanan porter profesional untuk pengalaman mendaki yang aman, nyaman, dan tak terlupakan.
                             </p>
                         </div>
@@ -1348,13 +1348,13 @@ export default function Home({
                         <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start w-full sm:w-auto">
                             <Link
                                 href="/sewa-alat"
-                                className="inline-flex uppercase items-center justify-center gap-2 px-6 py-4 rounded-xs bg-white hover:bg-white/90 active:scale-95 text-gray-900 font-bold text-sm transition-all shadow-md w-full sm:w-auto"
+                                className="inline-flex uppercase items-center justify-center gap-2 px-6 py-3.5 rounded-xs bg-white hover:bg-white/90 active:scale-95 text-gray-900 font-semibold text-base transition-all shadow-md w-full sm:w-auto"
                             >
                                 Sewa Alat Sekarang
                             </Link>
                             <Link
                                 href="/porter-gunung"
-                                className="inline-flex uppercase items-center justify-center gap-2 px-6 py-4 rounded-xs border border-white/30 bg-transparent hover:bg-white/10 hover:text-white active:scale-95 text-white font-bold text-sm transition-all w-full sm:w-auto"
+                                className="inline-flex uppercase items-center justify-center gap-2 px-6 py-3.5 rounded-xs border border-white/30 bg-transparent hover:bg-white/10 hover:text-white active:scale-95 text-white font-semibold text-base transition-all w-full sm:w-auto"
                             >
                                 Booking Porter
                             </Link>
