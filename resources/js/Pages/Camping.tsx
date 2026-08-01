@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Head } from '@inertiajs/react';
+import { Link, Head, usePage } from '@inertiajs/react';
 import FrontendLayout from '@/Layouts/FrontendLayout';
 import { Heart, Box, Flame, Star, Tag, ThumbsUp } from 'lucide-react';
 import { toast } from 'sonner';
@@ -18,6 +18,10 @@ interface CampingPackage {
 
 interface CampingProps {
     packages?: CampingPackage[];
+    campingCategories?: string[];
+    searchMountain?: string;
+    startDate?: string;
+    endDate?: string;
 }
 
 interface FavItem {
@@ -30,17 +34,30 @@ interface FavItem {
     timestamp: number;
 }
 
-export default function Camping({ packages = [] }: CampingProps) {
+export default function Camping({ packages = [], campingCategories = [], searchMountain = '', startDate = '', endDate = '' }: CampingProps) {
+    const { url } = usePage();
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [currentMountain, setCurrentMountain] = useState(searchMountain);
     const [favorites, setFavorites] = useState<string[]>([]);
 
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const m = urlParams.get('mountain');
+            if (m) {
+                setCurrentMountain(m);
+            } else if (searchMountain) {
+                setCurrentMountain(searchMountain);
+            }
+        }
+
         try {
             const favs = JSON.parse(localStorage.getItem('browky_favorites') || '[]');
             setFavorites(favs.map((f: FavItem) => f.id.toString()));
         } catch (e) {
             setFavorites([]);
         }
-    }, []);
+    }, [url, searchMountain]);
 
     const toggleFavorite = (e: React.MouseEvent<HTMLButtonElement>, item: FavItem) => {
         e.preventDefault();
@@ -87,6 +104,10 @@ export default function Camping({ packages = [] }: CampingProps) {
         return configs[badge] || { colors: 'from-gray-600 to-gray-400', icon: <Star className="w-3 h-3" /> };
     };
 
+    const filteredPackages = selectedCategory === 'all'
+        ? packages
+        : packages.filter(p => (p.tags || 'Lainnya').toLowerCase().includes(selectedCategory.toLowerCase()));
+
     return (
         <FrontendLayout>
             <Head>
@@ -130,8 +151,35 @@ export default function Camping({ packages = [] }: CampingProps) {
                         </ol>
                     </nav>
                     <h1 className="text-4xl font-anton tracking-wide uppercase text-gray-900 mb-6">
-                        Paket Camping Browky Outdoor
+                        Paket Camping {currentMountain ? (currentMountain.toLowerCase().includes('gunung') ? currentMountain : `Gunung ${currentMountain}`) : ''} Browky Outdoor
                     </h1>
+
+                    {/* Search Results and Category Filter */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+                        <div className="text-base text-gray-600">
+                            <span className="font-medium text-gray-900">{filteredPackages.length}</span> Hasil pencarian
+                        </div>
+
+                        {!currentMountain && (
+                            <div className="flex gap-2 overflow-x-auto scrollbar-none">
+                                <button
+                                    onClick={() => setSelectedCategory('all')}
+                                    className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCategory === 'all' ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
+                                >
+                                    Semua
+                                </button>
+                                {campingCategories.map((category) => (
+                                    <button
+                                        key={category}
+                                        onClick={() => setSelectedCategory(category)}
+                                        className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCategory === category ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
+                                    >
+                                        {category}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -140,7 +188,7 @@ export default function Camping({ packages = [] }: CampingProps) {
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
                     {/* Packages Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                        {packages.map((packageItem) => {
+                        {filteredPackages.map((packageItem) => {
                             const isFav = favorites.includes(`camping-${packageItem.id}`);
                             const imgSrc = packageItem.image 
                                 ? (packageItem.image.startsWith('http') ? packageItem.image : `/storage/${packageItem.image}`)
@@ -200,11 +248,23 @@ export default function Camping({ packages = [] }: CampingProps) {
                             );
                         })}
 
-                        {packages.length === 0 && (
-                            <div className="col-span-full text-center py-20 bg-white border border-dashed border-gray-200 flex flex-col items-center justify-center">
-                                <Box className="w-16 h-16 text-gray-200 mb-4" />
-                                <h3 className="text-sm font-semibold text-gray-900 mb-1">Belum ada paket camping</h3>
-                                <p className="text-xs text-gray-500">Paket layanan camping sedang dalam persiapan.</p>
+                        {filteredPackages.length === 0 && (
+                            <div className="col-span-full py-16 flex flex-col items-center justify-center text-center text-gray-500 bg-zinc-50 border border-dashed border-zinc-200 p-6 rounded-lg space-y-3">
+                                <Box className="w-12 h-12 text-zinc-300" />
+                                <h3 className="text-base font-bold text-gray-900">
+                                    Belum ada Paket Camping khusus {searchMountain || 'pilihan ini'} yang terdaftar secara online.
+                                </h3>
+                                <p className="text-xs text-gray-500 max-w-md">
+                                    Tim Browky Outdoor siap melayani paket camping custom All-In untuk {searchMountain || 'berbagai gunung'} via WhatsApp.
+                                </p>
+                                <a
+                                    href={`https://wa.me/6287834443012?text=Halo%20Browky%20Outdoor,%20saya%20ingin%20tanya%20Paket%20Camping%20khusus%20${encodeURIComponent(searchMountain || 'Dieng')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white font-semibold text-xs rounded-none hover:bg-black transition"
+                                >
+                                    Konsultasi Paket Custom WhatsApp {searchMountain}
+                                </a>
                             </div>
                         )}
                     </div>

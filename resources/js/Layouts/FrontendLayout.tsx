@@ -31,11 +31,11 @@ export default function FrontendLayout({ children }: FrontendLayoutProps) {
                 href="https://wa.me/6287834443012"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="fixed bottom-6 right-6 z-40 bg-[#25D366] text-white w-12 h-12 sm:w-16 sm:h-16 rounded-full shadow-2xl hover:bg-[#20ba5a] hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center"
+                className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 bg-[#25D366] text-white w-16 h-16 sm:w-18 sm:h-18 p-3 sm:p-3.5 rounded-full shadow-2xl hover:bg-[#20ba5a] hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center"
                 aria-label="Hubungi Browky Outdoor via WhatsApp: +62 878-3444-3012"
                 title="Chat WhatsApp Browky Outdoor"
             >
-                <img src="/images/icons/whatsapp.svg" alt="WhatsApp" className="w-6 h-6 sm:w-8 sm:h-8 invert brightness-200" />
+                <img src="/images/icons/whatsapp.svg" alt="WhatsApp" className="w-full h-full object-contain invert brightness-200" />
             </a>
 
             {/* Site Footer Component */}

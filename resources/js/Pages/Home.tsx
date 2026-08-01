@@ -1,8 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, Head } from '@inertiajs/react';
+import { Link, Head, router } from '@inertiajs/react';
 import FrontendLayout from '@/Layouts/FrontendLayout';
-import { Heart, ChevronLeft, ChevronRight, Tent, Mountain as MountainIcon, Flame, Star, Tag, ThumbsUp, ArrowRight } from 'lucide-react';
+import { Heart, ChevronLeft, ChevronRight, Tent, Mountain as MountainIcon, Flame, Star, Tag, ThumbsUp, ArrowRight, Search, Calendar as CalendarIcon, MapPin, Layers, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Calendar } from '@/components/ui/calendar';
+import type { DateRange } from 'react-day-picker';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 interface Product {
     id: number;
@@ -120,7 +137,156 @@ export default function Home({
 }: HomeProps) {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedPorterCategory, setSelectedPorterCategory] = useState('all');
+    const [selectedCampingCategory, setSelectedCampingCategory] = useState('all');
     const [favorites, setFavorites] = useState<string[]>([]);
+
+    // Quick Search Widget State (Airbnb Style)
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+    const [isDateOpen, setIsDateOpen] = useState(false);
+    const dateDropdownRef = useRef<HTMLDivElement>(null);
+
+    const formatDateToYYYYMMDD = (d: Date) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const startDate = dateRange?.from ? formatDateToYYYYMMDD(dateRange.from) : '';
+    const endDate = dateRange?.to ? formatDateToYYYYMMDD(dateRange.to) : '';
+
+    const [searchMountain, setSearchMountain] = useState('');
+    const [searchService, setSearchService] = useState('');
+    const [isMountainOpen, setIsMountainOpen] = useState(false);
+    const [isServiceOpen, setIsServiceOpen] = useState(false);
+    const mountainDropdownRef = useRef<HTMLDivElement>(null);
+
+    const availableMountains = (mountains && mountains.length > 0)
+        ? mountains
+        : [
+            { id: 1, name: 'Gunung Prau', location: 'Dieng, Wonosobo', elevation: '2.565 mdpl' },
+            { id: 2, name: 'Gunung Sumbing', location: 'Garung, Wonosobo', elevation: '3.371 mdpl' },
+            { id: 3, name: 'Gunung Sindoro', location: 'Kledung, Wonosobo', elevation: '3.153 mdpl' },
+            { id: 4, name: 'Gunung Kembang', location: 'Blembem, Wonosobo', elevation: '2.340 mdpl' },
+            { id: 5, name: 'Dieng Plateau', location: 'Kejajar, Wonosobo', elevation: '2.000 mdpl' },
+        ];
+
+    const filteredMountains = availableMountains.filter((m) =>
+        m.name.toLowerCase().includes(searchMountain.toLowerCase()) ||
+        ('location' in m && m.location && m.location.toLowerCase().includes(searchMountain.toLowerCase()))
+    );
+
+    // Format Date Range display text (e.g. "7-8 Agustus 2026")
+    const getFormattedDateDisplay = () => {
+        if (!dateRange?.from) return 'Pilih tanggal';
+
+        const MONTHS_ID = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
+        const sDay = dateRange.from.getDate();
+        const sMonth = dateRange.from.getMonth();
+        const sYear = dateRange.from.getFullYear();
+
+        if (!dateRange.to) {
+            return `${sDay} ${MONTHS_ID[sMonth]} ${sYear}`;
+        }
+
+        const eDay = dateRange.to.getDate();
+        const eMonth = dateRange.to.getMonth();
+        const eYear = dateRange.to.getFullYear();
+
+        if (sYear === eYear && sMonth === eMonth && sDay === eDay) {
+            return `${sDay} ${MONTHS_ID[sMonth]} ${sYear}`;
+        }
+        if (sYear === eYear && sMonth === eMonth) {
+            return `${sDay}-${eDay} ${MONTHS_ID[sMonth]} ${sYear}`;
+        }
+        if (sYear === eYear) {
+            return `${sDay} ${MONTHS_ID[sMonth]} - ${eDay} ${MONTHS_ID[eMonth]} ${sYear}`;
+        }
+        return `${sDay} ${MONTHS_ID[sMonth]} ${sYear} - ${eDay} ${MONTHS_ID[eMonth]} ${eYear}`;
+    };
+
+    // Click outside handler for mountain and date dropdowns
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (mountainDropdownRef.current && !mountainDropdownRef.current.contains(event.target as Node)) {
+                setIsMountainOpen(false);
+            }
+            if (dateDropdownRef.current && !dateDropdownRef.current.contains(event.target as Node)) {
+                setIsDateOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const params = new URLSearchParams();
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+
+        const matchedMountain = searchMountain
+            ? availableMountains.find(
+                (m) =>
+                    m.name.toLowerCase() === searchMountain.toLowerCase() ||
+                    searchMountain.toLowerCase().includes(m.name.toLowerCase()) ||
+                    m.name.toLowerCase().includes(searchMountain.toLowerCase())
+            )
+            : null;
+
+        const rawSlug = (matchedMountain && 'slug' in matchedMountain && matchedMountain.slug)
+            ? matchedMountain.slug
+            : (searchMountain ? searchMountain.toLowerCase().trim().replace(/\s+/g, '-') : '');
+
+        const cleanSlug = rawSlug.replace(/^gunung-/, '');
+        const mountainDetailSlug = cleanSlug ? (cleanSlug.includes('dieng') ? cleanSlug : `gunung-${cleanSlug}`) : '';
+
+        // If a specific service is selected (porter, camping, or rental), direct to that service listing page
+        if (searchService && searchService !== 'all') {
+            let targetPath = '/sewa-alat';
+            if (searchService === 'porter') {
+                targetPath = cleanSlug ? `/porter-${cleanSlug}` : '/porter-gunung';
+            } else if (searchService === 'camping') {
+                targetPath = cleanSlug ? `/paket-camping-${cleanSlug}` : '/paket-camping';
+            } else if (searchService === 'sewa-alat' || searchService === 'rental') {
+                targetPath = '/sewa-alat';
+                if (searchMountain) {
+                    params.append('mountain', searchMountain);
+                }
+            }
+
+            if (searchService !== 'sewa-alat' && searchService !== 'rental' && searchMountain) {
+                params.append('mountain', searchMountain);
+            }
+
+            const queryString = params.toString();
+            const fullUrl = queryString ? `${targetPath}?${queryString}` : targetPath;
+            router.get(fullUrl);
+            return;
+        }
+
+        // If NO specific service is selected (or 'all' is chosen):
+        // If mountain is specified, redirect directly to mountain detail page (/gunung/{mountainDetailSlug})
+        if (mountainDetailSlug) {
+            const queryString = params.toString();
+            const fullUrl = queryString ? `/gunung/${mountainDetailSlug}?${queryString}` : `/gunung/${mountainDetailSlug}`;
+            router.get(fullUrl);
+            return;
+        }
+
+        // Fallback: general search results page (/pencarian)
+        if (searchMountain) params.append('mountain', searchMountain);
+        const queryString = params.toString();
+        const fullUrl = queryString ? `/pencarian?${queryString}` : '/pencarian';
+        router.get(fullUrl);
+    };
 
     const productGridRef = useRef<HTMLDivElement>(null);
     const porterGridRef = useRef<HTMLDivElement>(null);
@@ -202,9 +368,23 @@ export default function Home({
         ? popularPorters
         : popularPorters.filter(p => (p.category || 'Lainnya') === selectedPorterCategory);
 
+    const campingCategories = Array.from(
+        new Set(
+            campingPackages
+                .map((p) => p.tags || p.category)
+                .filter(Boolean)
+        )
+    ) as string[];
+
+    const filteredCampingPackages = selectedCampingCategory === 'all'
+        ? campingPackages
+        : campingPackages.filter(p => ((p.tags || '') + ' ' + (p.category || '') + ' ' + (p.special_badge || '')).toLowerCase().includes(selectedCampingCategory.toLowerCase()));
+
+    const isAnySearchOpen = isMountainOpen || isDateOpen || isServiceOpen;
+
     const { canScrollLeft: canScrollProductsLeft, canScrollRight: canScrollProductsRight } = useScrollLimits(productGridRef, [filteredProducts, selectedCategory]);
     const { canScrollLeft: canScrollPortersLeft, canScrollRight: canScrollPortersRight } = useScrollLimits(porterGridRef, [filteredPorters, selectedPorterCategory]);
-    const { canScrollLeft: canScrollCampingLeft, canScrollRight: canScrollCampingRight } = useScrollLimits(campingSliderRef, [campingPackages]);
+    const { canScrollLeft: canScrollCampingLeft, canScrollRight: canScrollCampingRight } = useScrollLimits(campingSliderRef, [filteredCampingPackages, selectedCampingCategory]);
     const { canScrollLeft: canScrollMountainsLeft, canScrollRight: canScrollMountainsRight } = useScrollLimits(mountainSliderRef, [mountains]);
 
     return (
@@ -217,14 +397,14 @@ export default function Home({
                 <meta property="og:description" content="Sewa alat pendakian & perlengkapan outdoor lengkap di Dieng & Wonosobo. Porter gunung berpengalaman untuk Prau, Sumbing, Sindoro." />
                 <meta property="og:url" content="https://browkyoutdoor.com" />
                 <meta property="og:type" content="website" />
-                <meta property="og:image" content="https://browkyoutdoor.com/images/hero-fallback.jpg" />
+                <meta property="og:image" content="https://browkyoutdoor.com/images/rental-alat-outdoor-dan-porter-dieng-browky-outdoor.webp" />
                 <meta property="og:image:width" content="1200" />
                 <meta property="og:image:height" content="630" />
                 <meta property="og:site_name" content="Browky Outdoor" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Sewa Alat Hiking Dieng & Jasa Porter Gunung Wonosobo | Browky Outdoor" />
                 <meta name="twitter:description" content="Sewa alat pendakian & perlengkapan outdoor lengkap di Dieng & Wonosobo. Porter gunung berpengalaman untuk Prau, Sumbing, Sindoro." />
-                <meta name="twitter:image" content="https://browkyoutdoor.com/images/hero-fallback.jpg" />
+                <meta name="twitter:image" content="https://browkyoutdoor.com/images/rental-alat-outdoor-dan-porter-dieng-browky-outdoor.webp" />
                 <link rel="canonical" href="https://browkyoutdoor.com" />
                 <script type="application/ld+json">
                     {JSON.stringify({
@@ -238,7 +418,7 @@ export default function Home({
                                 "url": "https://browkyoutdoor.com",
                                 "telephone": "+6287834443012",
                                 "email": "hello@browkyoutdoor.com",
-                                "image": "https://browkyoutdoor.com/images/hero-fallback.jpg",
+                                "image": "https://browkyoutdoor.com/images/rental-alat-outdoor-dan-porter-dieng-browky-outdoor.webp",
                                 "priceRange": "Rp 25.000 - Rp 500.000",
                                 "address": {
                                     "@type": "PostalAddress",
@@ -278,7 +458,7 @@ export default function Home({
             </Head>
 
             {/* HERO SECTION */}
-            <section className="relative w-full h-screen overflow-hidden">
+            <section className="relative w-full min-h-screen overflow-hidden flex items-center py-16 md:py-24">
                 {/* Background Video */}
                 {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
                 <video
@@ -288,55 +468,342 @@ export default function Home({
                     loop
                     playsInline
                     preload="none"
-                    poster="/images/hero-fallback.jpg"
+                    poster="/images/rental-alat-outdoor-dan-porter-dieng-browky-outdoor.webp"
                 >
                     <source src="/videos/loop-2.webm" type="video/webm" />
                     <source src="/videos/loop-2.mp4" type="video/mp4" />
                 </video>
                 {/* Preload hero poster for LCP */}
-                <link rel="preload" as="image" href="/images/hero-fallback.jpg" />
+                <link rel="preload" as="image" href="/images/rental-alat-outdoor-dan-porter-dieng-browky-outdoor.webp" />
 
                 {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/30"></div>
 
                 {/* Hero Content */}
-                <div className="relative z-10 h-full flex items-center">
+                <div className="relative z-10 w-full">
                     <div className="max-w-7xl mx-auto px-4 md:px-8 w-full">
-                        <div className="max-w-2xl text-left space-y-6">
-                            <h1 className="text-4xl md:text-6xl font-anton tracking-wide uppercase text-white leading-tight">
+                        <div className="max-w-3xl text-left space-y-6">
+                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-anton tracking-wide uppercase text-white leading-tight">
                                 Sewa Alat Pendakian & Porter Gunung Dieng Browky Outdoor
                             </h1>
-                            <p className="text-lg text-gray-200 font-medium max-w-lg">
+                            <p className="text-base sm:text-lg text-gray-200 font-medium max-w-xl">
                                 Platform #1 sewa perlengkapan outdoor & jasa porter profesional di Wonosobo — mulai Rp 25.000/hari.
                             </p>
-                            <div className="flex flex-wrap gap-4 pt-2">
-                                <Link
-                                    href="/sewa-alat"
-                                    className="inline-flex uppercase items-center gap-2 px-6 py-3.5 rounded-xs bg-white hover:bg-white/90 active:scale-95 text-gray-900 font-bold text-sm transition-all shadow-md"
+
+                            {/* AIRBNB-STYLE MONOCHROME SEARCH BAR (NO BORDER RADIUS) */}
+                            <div className="pt-2">
+                                <form
+                                    onSubmit={handleSearchSubmit}
+                                    className={cn(
+                                        "flex flex-col md:flex-row items-stretch w-full max-w-4xl text-black dark:text-white gap-2.5 md:gap-0 divide-y-0 md:divide-x divide-zinc-200 dark:divide-zinc-800 transition-colors duration-200 border border-black dark:border-white rounded-none bg-transparent md:bg-white dark:md:bg-black shadow-none",
+                                        isAnySearchOpen ? "bg-transparent md:bg-zinc-200 dark:bg-zinc-950" : "bg-transparent md:bg-white dark:bg-black"
+                                    )}
                                 >
-                                    Sewa Alat
-                                </Link>
-                                <Link
-                                    href="/porter-gunung"
-                                    className="inline-flex uppercase items-center gap-2 px-6 py-3.5 rounded-xs border border-white/30 bg-transparent hover:bg-white/10 hover:text-white active:scale-95 text-white font-bold text-sm transition-all"
-                                >
-                                    Booking Porter
-                                </Link>
+                                    {/* 1. DESTINASI GUNUNG (SHADCN COMBOBOX) */}
+                                    <Popover open={isMountainOpen} onOpenChange={setIsMountainOpen}>
+                                        <PopoverTrigger asChild>
+                                            <div
+                                                className={cn(
+                                                    "flex-1 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer select-none relative group border border-zinc-200 dark:border-zinc-800 md:border-none shadow-none",
+                                                    isMountainOpen
+                                                        ? "bg-white dark:bg-zinc-900 shadow-none z-10"
+                                                        : (isAnySearchOpen ? "bg-white md:bg-zinc-200 dark:bg-zinc-950/80 hover:bg-zinc-300/50" : "bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900")
+                                                )}
+                                            >
+                                                <div className="flex-1 min-w-0 pr-6">
+                                                    <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                                        Mau ke mana
+                                                    </span>
+                                                    <input
+                                                        type="text"
+                                                        value={searchMountain}
+                                                        onChange={(e) => {
+                                                            setSearchMountain(e.target.value);
+                                                            if (!isMountainOpen) setIsMountainOpen(true);
+                                                        }}
+                                                        placeholder="Cari gunung"
+                                                        className={`w-full bg-transparent border-none p-0 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-0 truncate mt-0.5 ${searchMountain ? 'font-semibold text-zinc-900 dark:text-zinc-100' : 'font-normal text-zinc-700 dark:text-zinc-300'}`}
+                                                    />
+                                                </div>
+                                                {searchMountain && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            e.preventDefault();
+                                                            setSearchMountain('');
+                                                        }}
+                                                        className={cn(
+                                                            "absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 rounded-full cursor-pointer transition-opacity",
+                                                            isMountainOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+                                                        )}
+                                                        title="Reset pencarian gunung"
+                                                    >
+                                                        <X className="w-3.5 h-3.5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                            side="bottom"
+                                            align="start"
+                                            sideOffset={6}
+                                            className="w-[calc(100vw-2rem)] md:w-96 px-3 py-4 text-sm z-50 rounded-none border border-black dark:border-white shadow-none bg-white dark:bg-zinc-950 max-w-full"
+                                        >
+                                            <div className="text-xs font-normal px-2.5 text-muted-foreground flex justify-between items-center pb-2">
+                                                <span>Pilih Destinasi Pendakian</span>
+                                                {searchMountain && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSearchMountain('');
+                                                        }}
+                                                        className="text-muted-foreground hover:text-foreground underline cursor-pointer"
+                                                    >
+                                                        Reset
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <ScrollArea className="h-64">
+                                                <div className="pr-2">
+                                                    {filteredMountains.length > 0 ? (
+                                                        filteredMountains.map((m) => {
+                                                            const isSelected = searchMountain.toLowerCase() === m.name.toLowerCase();
+                                                            return (
+                                                                <div
+                                                                    key={m.id}
+                                                                    onClick={() => {
+                                                                        setSearchMountain(m.name);
+                                                                        setIsMountainOpen(false);
+                                                                    }}
+                                                                    className={cn(
+                                                                        "px-2.5 py-3 text-sm hover:bg-accent hover:text-accent-foreground transition cursor-pointer flex items-center justify-between group rounded-none",
+                                                                        isSelected && "bg-accent font-semibold"
+                                                                    )}
+                                                                >
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div>
+                                                                            <div className="font-semibold text-sm">{m.name}</div>
+                                                                            {'location' in m && m.location && (
+                                                                                <div className="text-sm font-medium text-muted-foreground">
+                                                                                    {m.location}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    {'elevation' in m && m.elevation && (
+                                                                        <span className="text-xs font-semibold bg-zinc-100 border border-zinc-200 text-zinc-800 px-2 py-1 rounded-full">
+                                                                            {m.elevation}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })
+                                                    ) : (
+                                                        <div className="p-4 text-sm text-muted-foreground text-center font-medium">
+                                                            Gunung "{searchMountain}" tidak ditemukan.
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </ScrollArea>
+                                        </PopoverContent>
+                                    </Popover>
+
+                                    {/* 2. TANGGAL PENDAKIAN (SHADCN DATE RANGE POPOVER) */}
+                                    <Popover open={isDateOpen} onOpenChange={setIsDateOpen}>
+                                        <PopoverTrigger asChild>
+                                            <div
+                                                className={cn(
+                                                    "flex-1 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer select-none relative group border border-zinc-200 dark:border-zinc-800 md:border-none shadow-none",
+                                                    isDateOpen
+                                                        ? "bg-white dark:bg-zinc-900 shadow-none z-10"
+                                                        : (isAnySearchOpen ? "bg-white md:bg-zinc-200 dark:bg-zinc-950/80 hover:bg-zinc-300/50" : "bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900")
+                                                )}
+                                            >
+                                                <div className="flex-1 min-w-0 pr-6">
+                                                    <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                                        Kapan
+                                                    </span>
+                                                    <div className={`mt-0.5 truncate text-sm ${startDate || endDate ? 'font-semibold text-zinc-900 dark:text-zinc-100' : 'font-normal text-zinc-400'}`}>
+                                                        {getFormattedDateDisplay()}
+                                                    </div>
+                                                </div>
+                                                {(dateRange?.from || dateRange?.to) && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            e.preventDefault();
+                                                            setDateRange(undefined);
+                                                        }}
+                                                        className={cn(
+                                                            "absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 rounded-full cursor-pointer transition-opacity",
+                                                            isDateOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+                                                        )}
+                                                        title="Reset tanggal"
+                                                    >
+                                                        <X className="w-3.5 h-3.5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                            side="bottom"
+                                            align="start"
+                                            sideOffset={6}
+                                            className="w-[calc(100vw-2rem)] md:w-80 px-4 py-4 text-sm z-50 rounded-none border border-black dark:border-white shadow-none bg-white dark:bg-zinc-950 max-w-full"
+                                        >
+                                            <div className="flex items-center justify-between pb-2.5 mb-2 text-xs font-normal text-muted-foreground px-0.5">
+                                                <span>Pilih Tanggal Pendakian</span>
+                                                {(dateRange?.from || dateRange?.to) && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setDateRange(undefined)}
+                                                        className="text-muted-foreground hover:text-foreground underline cursor-pointer"
+                                                    >
+                                                        Reset
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <div className="relative pt-1">
+                                                <Calendar
+                                                    mode="range"
+                                                    defaultMonth={dateRange?.from || new Date()}
+                                                    selected={dateRange}
+                                                    onSelect={setDateRange}
+                                                    numberOfMonths={1}
+                                                    className="w-full rounded-none border-none p-0 text-xs [--cell-size:1.75rem] [&_table]:w-full [&_table]:table-fixed [&_td]:text-center [&_th]:text-center"
+                                                    classNames={{
+                                                        root: "w-full",
+                                                        months: "w-full",
+                                                        month: "w-full space-y-2",
+                                                        month_caption: "flex h-7 w-full items-center justify-center font-medium text-xs mb-2",
+                                                        nav: "absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1 z-10",
+                                                    }}
+                                                />
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+
+                                    {/* 3. JENIS LAYANAN / KEBUTUHAN (SHADCN POPOVER LIKE CARI GUNUNG) */}
+                                    <Popover open={isServiceOpen} onOpenChange={setIsServiceOpen}>
+                                        <PopoverTrigger asChild>
+                                            <div
+                                                className={cn(
+                                                    "flex-1 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer select-none relative group border border-zinc-200 dark:border-zinc-800 md:border-none shadow-none",
+                                                    isServiceOpen
+                                                        ? "bg-white dark:bg-zinc-900 shadow-none z-10"
+                                                        : (isAnySearchOpen ? "bg-white md:bg-zinc-200 dark:bg-zinc-950/80 hover:bg-zinc-300/50" : "bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900")
+                                                )}
+                                            >
+                                                <div className="flex-1 min-w-0 pr-6">
+                                                    <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                                        Kebutuhan
+                                                    </span>
+                                                    <div className={`mt-0.5 truncate text-sm ${searchService ? 'font-semibold text-zinc-900 dark:text-zinc-100' : 'font-normal text-zinc-400'}`}>
+                                                        {searchService === 'all' && 'Pilih Semua'}
+                                                        {searchService === 'sewa-alat' && 'Sewa Alat Pendakian'}
+                                                        {searchService === 'porter' && 'Jasa Porter Gunung'}
+                                                        {searchService === 'camping' && 'Paket Camping'}
+                                                        {!searchService && 'Pilih yang kamu mau'}
+                                                    </div>
+                                                </div>
+                                                {searchService && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            e.preventDefault();
+                                                            setSearchService('');
+                                                        }}
+                                                        className={cn(
+                                                            "absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 rounded-full cursor-pointer transition-opacity",
+                                                            isServiceOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+                                                        )}
+                                                        title="Reset kebutuhan"
+                                                    >
+                                                        <X className="w-3.5 h-3.5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                            side="bottom"
+                                            align="start"
+                                            sideOffset={6}
+                                            className="w-[calc(100vw-2rem)] md:w-80 px-3 py-4 text-sm z-50 rounded-none border border-black dark:border-white shadow-none bg-white dark:bg-zinc-950 max-w-full"
+                                        >
+                                            <div className="text-xs font-normal px-2.5 text-muted-foreground flex justify-between items-center pb-2">
+                                                <span>Pilih yang kamu butuhkan</span>
+                                                {searchService && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSearchService('');
+                                                            setIsServiceOpen(false);
+                                                        }}
+                                                        className="text-muted-foreground hover:text-foreground underline cursor-pointer"
+                                                    >
+                                                        Reset
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <div className="pt-1">
+                                                {[
+                                                    { value: 'all', label: 'Pilih Semua' },
+                                                    { value: 'sewa-alat', label: 'Sewa Alat Pendakian' },
+                                                    { value: 'porter', label: 'Jasa Porter Gunung' },
+                                                    { value: 'camping', label: 'Paket Camping' }
+                                                ].map((option) => {
+                                                    const isSelected = searchService === option.value;
+                                                    return (
+                                                        <div
+                                                            key={option.value}
+                                                            onClick={() => {
+                                                                setSearchService(option.value);
+                                                                setIsServiceOpen(false);
+                                                            }}
+                                                            className={cn(
+                                                                "px-2.5 py-3 text-sm hover:bg-accent hover:text-accent-foreground transition cursor-pointer flex items-center justify-between group rounded-none",
+                                                                isSelected && "bg-accent font-medium"
+                                                            )}
+                                                        >
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-medium text-sm">{option.label}</span>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+
+                                    {/* 4. TOMBOL CARI */}
+                                    <button
+                                        type="submit"
+                                        className="bg-black hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-black font-semibold uppercase text-sm tracking-wider px-8 py-3.5 sm:py-4 flex items-center justify-center gap-2 transition rounded-none shrink-0 cursor-pointer active:scale-98 mt-1 md:mt-0 shadow-none border border-black dark:border-white md:border-l-0"
+                                    >
+                                        <Search className="w-5 h-5" />
+                                        <span>Cari</span>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Scroll Hint indicator */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-white/50">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 hidden md:flex flex-col items-center gap-2 text-white/50">
                     <ChevronRight className="w-5 h-5 rotate-90 animate-bounce" />
                 </div>
             </section>
 
             {/* BRAND LOGOS MARQUEE */}
-            <section className="py-10 border-b border-zinc-100 bg-white">
+            <section className="py-10 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 text-center mb-8">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 text-center mb-8">
                         Peralatan dari brand terpercaya
                     </p>
                     <div className="w-full relative overflow-hidden">
@@ -638,7 +1105,7 @@ export default function Home({
             </section>
 
             {/* CAMPING SPECIAL PACKAGES */}
-            <section className="py-16 bg-gray-50/50">
+            <section className="py-16 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
                     {/* Header */}
                     <div className="flex items-end justify-between mb-8">
@@ -673,12 +1140,33 @@ export default function Home({
                         </div>
                     </div>
 
+                    {/* Filter Pills */}
+                    {campingCategories.length > 0 && (
+                        <div className="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none">
+                            <button
+                                onClick={() => setSelectedCampingCategory('all')}
+                                className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCampingCategory === 'all' ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
+                            >
+                                Semua
+                            </button>
+                            {campingCategories.map((category) => (
+                                <button
+                                    key={category}
+                                    onClick={() => setSelectedCampingCategory(category)}
+                                    className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCampingCategory === category ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
+                                >
+                                    {category}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
                     {/* Camping Cards Row */}
                     <div
                         ref={campingSliderRef}
                         className="flex gap-6 overflow-x-auto pb-4 scroll-smooth scrollbar-none"
                     >
-                        {campingPackages.map((packageItem) => {
+                        {filteredCampingPackages.map((packageItem) => {
                             const isFav = favorites.includes(`camping-${packageItem.id}`);
                             const imgSrc = packageItem.image
                                 ? (packageItem.image.startsWith('http') ? packageItem.image : `/storage/${packageItem.image}`)
@@ -737,7 +1225,11 @@ export default function Home({
                             );
                         })}
 
-
+                        {filteredCampingPackages.length === 0 && (
+                            <div className="w-full py-12 text-center text-gray-400 border border-dashed border-gray-200 rounded-2xl">
+                                Belum ada paket camping dalam kategori ini.
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>
@@ -838,7 +1330,7 @@ export default function Home({
             </section>
 
             {/* CTA BANNER */}
-            <section className="relative overflow-hidden bg-zinc-800 py-16 text-white border-b-6 border-secondary">
+            <section className="relative overflow-hidden bg-zinc-800 py-16 text-white">
                 {/* Background accents */}
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,white_1px,transparent_1px),radial-gradient(circle_at_80%_20%,white_1px,transparent_1px)] bg-[size:40px_40px]"></div>
 
@@ -856,13 +1348,13 @@ export default function Home({
                         <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start w-full sm:w-auto">
                             <Link
                                 href="/sewa-alat"
-                                className="inline-flex uppercase items-center justify-center gap-2 px-6 py-3.5 rounded-xs bg-white hover:bg-white/90 active:scale-95 text-gray-900 font-bold text-sm transition-all shadow-md w-full sm:w-auto"
+                                className="inline-flex uppercase items-center justify-center gap-2 px-6 py-4 rounded-xs bg-white hover:bg-white/90 active:scale-95 text-gray-900 font-bold text-sm transition-all shadow-md w-full sm:w-auto"
                             >
                                 Sewa Alat Sekarang
                             </Link>
                             <Link
                                 href="/porter-gunung"
-                                className="inline-flex uppercase items-center justify-center gap-2 px-6 py-3.5 rounded-xs border border-white/30 bg-transparent hover:bg-white/10 hover:text-white active:scale-95 text-white font-bold text-sm transition-all w-full sm:w-auto"
+                                className="inline-flex uppercase items-center justify-center gap-2 px-6 py-4 rounded-xs border border-white/30 bg-transparent hover:bg-white/10 hover:text-white active:scale-95 text-white font-bold text-sm transition-all w-full sm:w-auto"
                             >
                                 Booking Porter
                             </Link>

@@ -75,7 +75,7 @@
     <video
         class="absolute inset-0 w-full h-full object-cover hidden md:block"
         autoplay muted loop playsinline preload="none"
-        poster="/images/hero-fallback.jpg"
+        poster="/images/rental-alat-outdoor-dan-porter-dieng-browky-outdoor.webp"
     >
         <source src="/videos/loop-2.webm" type="video/webm">
         <source src="/videos/loop-2.mp4" type="video/mp4">
@@ -83,7 +83,7 @@
 
     <!-- Mobile Hero Fallback Image (Prevents 5.5MB Video Payload on Mobile) -->
     <img 
-        src="/images/hero-fallback.jpg" 
+        src="/images/rental-alat-outdoor-dan-porter-dieng-browky-outdoor.webp" 
         alt="Sewa Alat Pendakian & Porter Gunung Wonosobo" 
         class="absolute inset-0 w-full h-full object-cover md:hidden" 
         fetchpriority="high" 

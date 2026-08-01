@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Head } from '@inertiajs/react';
+import { Link, Head, usePage } from '@inertiajs/react';
 import FrontendLayout from '@/Layouts/FrontendLayout';
 import { Heart, Box, Flame, Star, Tag, ThumbsUp } from 'lucide-react';
 import { toast } from 'sonner';
@@ -18,6 +18,9 @@ interface Product {
 interface RentalProps {
     products?: Product[];
     categories?: string[];
+    searchMountain?: string;
+    startDate?: string;
+    endDate?: string;
 }
 
 interface FavItem {
@@ -30,18 +33,46 @@ interface FavItem {
     timestamp: number;
 }
 
-export default function Rental({ products = [], categories = [] }: RentalProps) {
+export default function Rental({ products = [], categories = [], searchMountain: propSearchMountain = '' }: RentalProps) {
+    const page = usePage();
+    const url = page?.url || '';
+
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchMountain, setSearchMountain] = useState(propSearchMountain || '');
+    const [searchDate, setSearchDate] = useState('');
     const [favorites, setFavorites] = useState<string[]>([]);
 
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const m = urlParams.get('mountain');
+                const d = urlParams.get('date');
+                const q = urlParams.get('search');
+                setSearchMountain(m || propSearchMountain || '');
+                setSearchDate(d || '');
+                setSearchQuery(q || '');
+            } catch (err) {
+                console.error('Error parsing URL params:', err);
+            }
+        }
+
         try {
-            const favs = JSON.parse(localStorage.getItem('browky_favorites') || '[]');
-            setFavorites(favs.map((f: FavItem) => f.id.toString()));
+            const rawFavs = JSON.parse(localStorage.getItem('browky_favorites') || '[]');
+            if (Array.isArray(rawFavs)) {
+                const ids = rawFavs.map((f: any) => {
+                    if (typeof f === 'object' && f !== null && f.id !== undefined) return String(f.id);
+                    return String(f);
+                }).filter(Boolean);
+                setFavorites(ids);
+            } else {
+                setFavorites([]);
+            }
         } catch (e) {
             setFavorites([]);
         }
-    }, []);
+    }, [url, propSearchMountain]);
 
     const toggleFavorite = (e: React.MouseEvent<HTMLButtonElement>, item: FavItem) => {
         e.preventDefault();
@@ -50,15 +81,16 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
         let favs: FavItem[] = [];
         try {
             favs = JSON.parse(localStorage.getItem('browky_favorites') || '[]');
+            if (!Array.isArray(favs)) favs = [];
         } catch (err) {
             favs = [];
         }
 
-        const isFav = favs.some(f => f.id === item.id);
+        const isFav = favs.some(f => f && String(f.id) === String(item.id));
         let updatedFavs: FavItem[] = [];
 
         if (isFav) {
-            updatedFavs = favs.filter(f => f.id !== item.id);
+            updatedFavs = favs.filter(f => f && String(f.id) !== String(item.id));
             toast.success(`${item.name} dihapus dari favorit`);
         } else {
             updatedFavs = [...favs, {
@@ -73,9 +105,13 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
             toast.success(`${item.name} ditambahkan ke favorit`);
         }
 
-        localStorage.setItem('browky_favorites', JSON.stringify(updatedFavs));
-        setFavorites(updatedFavs.map(f => f.id.toString()));
-        window.dispatchEvent(new Event('favorites-updated'));
+        try {
+            localStorage.setItem('browky_favorites', JSON.stringify(updatedFavs));
+            setFavorites(updatedFavs.map(f => String(f.id)));
+            window.dispatchEvent(new Event('favorites-updated'));
+        } catch (err) {
+            console.error('Error updating favorites:', err);
+        }
     };
 
     const getBadgeConfig = (badge: string) => {
@@ -88,14 +124,26 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
         return configs[badge] || { colors: 'from-gray-600 to-gray-400', icon: <Star className="w-3 h-3" /> };
     };
 
-    const filteredProducts = selectedCategory === 'all'
-        ? products
-        : products.filter(p => p.category === selectedCategory);
+    const getMountainHeadingText = () => {
+        if (!searchMountain) return '';
+        const lower = String(searchMountain).toLowerCase();
+        if (lower.includes('gunung') || lower.includes('dieng')) {
+            return searchMountain;
+        }
+        return `Gunung ${searchMountain}`;
+    };
+
+    const filteredProducts = (products || []).filter(p => {
+        if (!p) return false;
+        const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+        const matchesSearch = !searchQuery || (p.name && String(p.name).toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesCategory && matchesSearch;
+    });
 
     return (
         <FrontendLayout>
             <Head>
-                <title>Sewa Alat Hiking Dieng & Wonosobo Lengkap | Browky Outdoor</title>
+                <title>Sewa Alat Hiking {searchMountain ? getMountainHeadingText() : 'Dieng & Wonosobo'} Lengkap | Browky Outdoor</title>
                 <meta name="description" content="Rental & sewa alat hiking Dieng Wonosobo lengkap: tenda waterproof, carrier, sleeping bag, matras, kompor camping & perlengkapan outdoor murah siap pakai." />
                 <meta name="keywords" content="sewa alat hiking dieng, sewa alat pendakian dieng, sewa tenda dieng, sewa perlengkapan pendakian wonosobo, rental outdoor dieng, sewa carrier dieng, sewa alat camping wonosobo" />
                 <meta property="og:title" content="Sewa Alat Hiking Dieng & Wonosobo Lengkap | Browky Outdoor" />
@@ -111,16 +159,6 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
                 <meta name="twitter:description" content="Sewa peralatan pendakian & camping lengkap di Dieng Wonosobo dengan harga terjangkau." />
                 <meta name="twitter:image" content="https://browkyoutdoor.com/images/hero-fallback.jpg" />
                 <link rel="canonical" href="https://browkyoutdoor.com/sewa-alat" />
-                <script type="application/ld+json">
-                {JSON.stringify({
-                    "@context": "https://schema.org",
-                    "@type": "BreadcrumbList",
-                    "itemListElement": [
-                        { "@type": "ListItem", "position": 1, "name": "Beranda", "item": "https://browkyoutdoor.com" },
-                        { "@type": "ListItem", "position": 2, "name": "Sewa Alat Pendakian", "item": "https://browkyoutdoor.com/sewa-alat" }
-                    ]
-                })}
-                </script>
             </Head>
 
             {/* PAGE HEADER & FILTER */}
@@ -135,26 +173,32 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
                         </ol>
                     </nav>
                     <h1 className="text-4xl font-anton tracking-wide uppercase text-gray-900 mb-6">
-                        Sewa Alat Pendakian Browky Outdoor
+                        Sewa Alat Pendakian {searchMountain ? getMountainHeadingText() : ''} Browky Outdoor
                     </h1>
                     
-                    {/* Category Filter */}
-                    <div className="flex gap-2 overflow-x-auto pb-4 mb-6 border-b border-gray-100 scrollbar-none">
-                        <button 
-                            onClick={() => setSelectedCategory('all')}
-                            className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCategory === 'all' ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
-                        >
-                            Semua
-                        </button>
-                        {categories.map((category) => (
+                    {/* Search Results and Category Filter */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+                        <div className="text-base text-gray-600">
+                            <span className="font-medium text-gray-900">{filteredProducts.length}</span> Hasil pencarian
+                        </div>
+
+                        <div className="flex gap-2 overflow-x-auto scrollbar-none">
                             <button 
-                                key={category}
-                                onClick={() => setSelectedCategory(category)}
-                                className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCategory === category ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
+                                onClick={() => setSelectedCategory('all')}
+                                className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCategory === 'all' ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
                             >
-                                {category}
+                                Semua
                             </button>
-                        ))}
+                            {(categories || []).map((category) => (
+                                <button 
+                                    key={category}
+                                    onClick={() => setSelectedCategory(category)}
+                                    className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer ${selectedCategory === category ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'}`}
+                                >
+                                    {category}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -166,8 +210,9 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
                     {/* Product Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                         {filteredProducts.map((product) => {
-                            const isFav = favorites.includes(product.id.toString());
-                            const imgSrc = product.cover_image 
+                            if (!product) return null;
+                            const isFav = product.id ? favorites.includes(String(product.id)) : false;
+                            const imgSrc = typeof product.cover_image === 'string' && product.cover_image.trim() !== ''
                                 ? (product.cover_image.startsWith('http') ? product.cover_image : `/storage/${product.cover_image}`)
                                 : 'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=500&q=80';
 
@@ -181,12 +226,12 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
                                     {/* Favorite toggle */}
                                     <button 
                                         onClick={(e) => toggleFavorite(e, {
-                                            id: product.id.toString(),
+                                            id: String(product.id || ''),
                                             type: 'product',
-                                            name: product.name,
-                                            price: product.price_per_day,
+                                            name: product.name || '',
+                                            price: product.price_per_day || 0,
                                             image: imgSrc,
-                                            link: `/sewa-alat/${product.slug}`,
+                                            link: `/sewa-alat/${product.slug || ''}`,
                                             timestamp: Date.now()
                                         })}
                                         className={`absolute top-3 right-3 z-20 p-2 rounded-full bg-white/95 shadow-sm active:scale-90 transition-transform cursor-pointer ${isFav ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'}`}
@@ -194,11 +239,11 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
                                         <Heart className={`w-5 h-5 ${isFav ? 'fill-current' : ''}`} strokeWidth={1.5} />
                                     </button>
 
-                                    <Link href={`/sewa-alat/${product.slug}`} className="block">
+                                    <Link href={`/sewa-alat/${product.slug || ''}`} className="block">
                                         <div className="relative aspect-square w-full overflow-hidden bg-gray-50 rounded-sm">
                                             <img 
                                                 src={imgSrc} 
-                                                alt={product.name} 
+                                                alt={product.name || 'Alat Pendakian'} 
                                                 className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                                                 loading="lazy" 
                                             />
@@ -208,7 +253,7 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
                                                     <span>{product.special_badge}</span>
                                                 </div>
                                             )}
-                                            {product.stock <= 0 && (
+                                            {(product.stock ?? 0) <= 0 && (
                                                 <div className="absolute inset-0 bg-black/55 flex items-center justify-center rounded-sm">
                                                     <span className="bg-white text-gray-900 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-sm shadow-md">
                                                         Stok Habis
@@ -221,7 +266,7 @@ export default function Rental({ products = [], categories = [] }: RentalProps) 
                                                 {product.name}
                                             </h3>
                                             <div className="flex items-baseline text-sm font-semibold text-red-600">
-                                                <span>Rp {Number(product.price_per_day).toLocaleString('id-ID')}</span>
+                                                <span>Rp {product.price_per_day ? Number(product.price_per_day).toLocaleString('id-ID') : '0'}</span>
                                                 <span className="text-sm text-gray-400 font-normal ml-1">/ hari</span>
                                             </div>
                                         </div>

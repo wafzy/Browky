@@ -30,13 +30,16 @@ class FrontendController extends Controller
         ]);
     }
 
-    public function rental()
+    public function rental(Request $request)
     {
         $products = Product::get();
         $categories = Product::select('category')->distinct()->pluck('category');
         return Inertia::render('Rental', [
             'products' => $products,
-            'categories' => $categories
+            'categories' => $categories,
+            'searchMountain' => $request->get('mountain', ''),
+            'startDate' => $request->get('startDate', ''),
+            'endDate' => $request->get('endDate', ''),
         ]);
     }
 
@@ -50,13 +53,57 @@ class FrontendController extends Controller
         ]);
     }
 
-    public function porter()
+    public function porter(Request $request)
     {
-        $porters = Porter::all();
+        $mountainParam = $request->get('mountain');
+        $query = Porter::query();
+
+        if ($mountainParam) {
+            $cleanName = trim(str_replace(['Gunung ', 'gunung '], '', $mountainParam));
+            $query->where(function($q) use ($cleanName, $mountainParam) {
+                $q->where('mountain', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('mountain', 'LIKE', "%{$mountainParam}%")
+                  ->orWhere('name', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('description', 'LIKE', "%{$cleanName}%");
+            });
+        }
+
+        $porters = $query->get();
         $porterCategories = Porter::select('category')->whereNotNull('category')->distinct()->pluck('category');
         return Inertia::render('Porter', [
             'porters' => $porters,
-            'porterCategories' => $porterCategories
+            'porterCategories' => $porterCategories,
+            'searchMountain' => $mountainParam ?? '',
+            'startDate' => $request->get('startDate', ''),
+            'endDate' => $request->get('endDate', ''),
+        ]);
+    }
+
+    public function porterMountain(Request $request, $mountain_slug)
+    {
+        $cleanSlug = str_replace('gunung-', '', strtolower($mountain_slug));
+        $mountain = \App\Models\Mountain::where('slug', $mountain_slug)
+            ->orWhere('slug', 'gunung-' . $cleanSlug)
+            ->orWhere('slug', $cleanSlug)
+            ->first();
+
+        $mountainName = $mountain ? $mountain->name : ('Gunung ' . ucwords($cleanSlug));
+        $cleanName = trim(str_replace(['Gunung ', 'gunung '], '', $mountainName));
+
+        $porters = Porter::where(function($q) use ($cleanName, $mountainName) {
+            $q->where('mountain', 'LIKE', "%{$cleanName}%")
+              ->orWhere('mountain', 'LIKE', "%{$mountainName}%")
+              ->orWhere('name', 'LIKE', "%{$cleanName}%")
+              ->orWhere('description', 'LIKE', "%{$cleanName}%");
+        })->get();
+
+        $porterCategories = Porter::select('category')->whereNotNull('category')->distinct()->pluck('category');
+        return Inertia::render('Porter', [
+            'porters' => $porters,
+            'porterCategories' => $porterCategories,
+            'searchMountain' => $mountainName,
+            'startDate' => $request->get('startDate', ''),
+            'endDate' => $request->get('endDate', ''),
         ]);
     }
     
@@ -80,39 +127,45 @@ class FrontendController extends Controller
         ]);
     }
 
-    public function mountainDetail($slug)
+    public function mountainDetail(Request $request, $slug)
     {
-        $mountain = \App\Models\Mountain::where('slug', $slug)->firstOrFail();
+        $cleanSlug = str_replace('gunung-', '', strtolower($slug));
+        $mountain = \App\Models\Mountain::where('slug', $slug)
+            ->orWhere('slug', 'gunung-' . $cleanSlug)
+            ->orWhere('slug', $cleanSlug)
+            ->orWhere('name', 'LIKE', "%{$cleanSlug}%")
+            ->firstOrFail();
 
-        // Clean mountain name snippet (e.g. "Prau" from "Gunung Prau")
-        $cleanName = str_replace(['Gunung ', 'gunung '], '', $mountain->name);
+        // Clean mountain name snippet (e.g. "Sumbing" from "Gunung Sumbing")
+        $cleanName = trim(str_replace(['Gunung ', 'gunung '], '', $mountain->name));
 
-        // Porters for this mountain
-        $porters = \App\Models\Porter::where('mountain', 'LIKE', "%{$cleanName}%")
-            ->orWhere('name', 'LIKE', "%{$cleanName}%")
-            ->orWhere('description', 'LIKE', "%{$cleanName}%")
-            ->get();
-        if ($porters->isEmpty()) {
-            $porters = \App\Models\Porter::where('status', 'Available')->take(5)->get();
-        }
+        // Porters specifically for this mountain ONLY (no incorrect cross-mountain fallbacks)
+        $porters = \App\Models\Porter::where(function($q) use ($cleanName, $mountain) {
+            $q->where('mountain', 'LIKE', "%{$cleanName}%")
+              ->orWhere('mountain', 'LIKE', "%{$mountain->name}%")
+              ->orWhere('name', 'LIKE', "%{$cleanName}%")
+              ->orWhere('description', 'LIKE', "%{$cleanName}%");
+        })->get();
 
-        // Camping Packages for this mountain
-        $campingPackages = \App\Models\CampingPackage::where('tags', 'LIKE', "%{$cleanName}%")
-            ->orWhere('name', 'LIKE', "%{$cleanName}%")
-            ->orWhere('description', 'LIKE', "%{$cleanName}%")
-            ->get();
-        if ($campingPackages->isEmpty()) {
-            $campingPackages = \App\Models\CampingPackage::where('status', 'Available')->take(5)->get();
-        }
+        // Camping Packages specifically for this mountain ONLY
+        $campingPackages = \App\Models\CampingPackage::where(function($q) use ($cleanName, $mountain) {
+            $q->where('tags', 'LIKE', "%{$cleanName}%")
+              ->orWhere('tags', 'LIKE', "%{$mountain->name}%")
+              ->orWhere('name', 'LIKE', "%{$cleanName}%")
+              ->orWhere('description', 'LIKE', "%{$cleanName}%");
+        })->get();
 
         // Recommended Rental Gear / Products
-        $products = \App\Models\Product::with('images')->latest()->take(5)->get();
+        $products = \App\Models\Product::with('images')->latest()->take(8)->get();
 
         return Inertia::render('MountainDetail', [
             'mountain' => $mountain,
             'porters' => $porters,
             'campingPackages' => $campingPackages,
             'products' => $products,
+            'activeService' => $request->get('service', 'all'),
+            'startDate' => $request->get('startDate', ''),
+            'endDate' => $request->get('endDate', ''),
         ]);
     }
 
@@ -121,11 +174,91 @@ class FrontendController extends Controller
         return Inertia::render('Favorit');
     }
 
-    public function camping()
+    public function camping(Request $request)
     {
-        $packages = CampingPackage::where('status', 'Available')->orderBy('created_at', 'desc')->get();
+        $mountainParam = $request->get('mountain');
+        $query = CampingPackage::where('status', 'Available');
+
+        if ($mountainParam) {
+            $cleanName = trim(str_replace(['Gunung ', 'gunung '], '', $mountainParam));
+            $query->where(function($q) use ($cleanName, $mountainParam) {
+                $q->where('tags', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('tags', 'LIKE', "%{$mountainParam}%")
+                  ->orWhere('name', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('description', 'LIKE', "%{$cleanName}%");
+            });
+        }
+
+        $packages = $query->orderBy('created_at', 'desc')->get();
+        $campingCategories = CampingPackage::select('tags')->whereNotNull('tags')->distinct()->pluck('tags');
         return Inertia::render('Camping', [
-            'packages' => $packages
+            'packages' => $packages,
+            'campingCategories' => $campingCategories,
+            'searchMountain' => $mountainParam ?? '',
+            'startDate' => $request->get('startDate', ''),
+            'endDate' => $request->get('endDate', ''),
+        ]);
+    }
+
+    public function campingMountain(Request $request, $mountain_slug)
+    {
+        $cleanSlug = str_replace('gunung-', '', strtolower($mountain_slug));
+        $mountain = \App\Models\Mountain::where('slug', $mountain_slug)
+            ->orWhere('slug', 'gunung-' . $cleanSlug)
+            ->orWhere('slug', $cleanSlug)
+            ->first();
+
+        $mountainName = $mountain ? $mountain->name : ('Gunung ' . ucwords($cleanSlug));
+        $cleanName = trim(str_replace(['Gunung ', 'gunung '], '', $mountainName));
+
+        $packages = CampingPackage::where('status', 'Available')
+            ->where(function($q) use ($cleanName, $mountainName) {
+                $q->where('tags', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('tags', 'LIKE', "%{$mountainName}%")
+                  ->orWhere('name', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('description', 'LIKE', "%{$cleanName}%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $campingCategories = CampingPackage::select('tags')->whereNotNull('tags')->distinct()->pluck('tags');
+
+        return Inertia::render('Camping', [
+            'packages' => $packages,
+            'campingCategories' => $campingCategories,
+            'searchMountain' => $mountainName,
+            'startDate' => $request->get('startDate', ''),
+            'endDate' => $request->get('endDate', ''),
+        ]);
+    }
+
+    public function rentalMountain(Request $request, $mountain_slug)
+    {
+        $cleanSlug = str_replace('gunung-', '', strtolower($mountain_slug));
+        $mountain = \App\Models\Mountain::where('slug', $mountain_slug)
+            ->orWhere('slug', 'gunung-' . $cleanSlug)
+            ->orWhere('slug', $cleanSlug)
+            ->first();
+
+        $mountainName = $mountain ? $mountain->name : ('Gunung ' . ucwords($cleanSlug));
+        $cleanName = trim(str_replace(['Gunung ', 'gunung '], '', $mountainName));
+
+        $products = Product::with('images')
+            ->where(function($q) use ($cleanName, $mountainName) {
+                $q->where('name', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('category', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('description', 'LIKE', "%{$cleanName}%");
+            })
+            ->get();
+
+        $categories = Product::select('category')->distinct()->pluck('category');
+
+        return Inertia::render('Rental', [
+            'products' => $products,
+            'categories' => $categories,
+            'searchMountain' => $mountainName,
+            'startDate' => $request->get('startDate', ''),
+            'endDate' => $request->get('endDate', ''),
         ]);
     }
 
@@ -185,5 +318,126 @@ class FrontendController extends Controller
             });
 
         return response()->json($products->concat($porters)->concat($campings));
+    }
+
+    public function searchResults(Request $request)
+    {
+        $mountainParam = $request->get('mountain', '');
+        $startDate = $request->get('startDate', '');
+        $endDate = $request->get('endDate', '');
+        $queryKeyword = $request->get('q', '');
+
+        $cleanName = trim(str_replace(['Gunung ', 'gunung '], '', $mountainParam));
+
+        // 1. Products (Sewa Alat)
+        $productQuery = Product::query();
+        if ($queryKeyword) {
+            $productQuery->where(function($q) use ($queryKeyword) {
+                $q->where('name', 'LIKE', "%{$queryKeyword}%")
+                  ->orWhere('category', 'LIKE', "%{$queryKeyword}%")
+                  ->orWhere('description', 'LIKE', "%{$queryKeyword}%");
+            });
+        }
+        $products = $productQuery->get();
+
+        // 2. Porters (Jasa Porter)
+        $porterQuery = Porter::query();
+        if ($mountainParam) {
+            $porterQuery->where(function($q) use ($cleanName, $mountainParam) {
+                $q->where('mountain', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('mountain', 'LIKE', "%{$mountainParam}%")
+                  ->orWhere('name', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('description', 'LIKE', "%{$cleanName}%");
+            });
+        }
+        if ($queryKeyword) {
+            $porterQuery->where(function($q) use ($queryKeyword) {
+                $q->where('name', 'LIKE', "%{$queryKeyword}%")
+                  ->orWhere('mountain', 'LIKE', "%{$queryKeyword}%")
+                  ->orWhere('description', 'LIKE', "%{$queryKeyword}%");
+            });
+        }
+        $porters = $porterQuery->get();
+
+        // 3. Camping Packages (Paket Camping)
+        $campingQuery = CampingPackage::where('status', 'Available');
+        if ($mountainParam) {
+            $campingQuery->where(function($q) use ($cleanName, $mountainParam) {
+                $q->where('tags', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('tags', 'LIKE', "%{$mountainParam}%")
+                  ->orWhere('name', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('description', 'LIKE', "%{$cleanName}%");
+            });
+        }
+        if ($queryKeyword) {
+            $campingQuery->where(function($q) use ($queryKeyword) {
+                $q->where('name', 'LIKE', "%{$queryKeyword}%")
+                  ->orWhere('tags', 'LIKE', "%{$queryKeyword}%")
+                  ->orWhere('description', 'LIKE', "%{$queryKeyword}%");
+            });
+        }
+        $campingPackages = $campingQuery->get();
+
+        // 4. Mountain info if matched
+        $mountain = null;
+        if ($mountainParam) {
+            $mountain = Mountain::where('name', 'LIKE', "%{$cleanName}%")
+                ->orWhere('name', 'LIKE', "%{$mountainParam}%")
+                ->first();
+        }
+
+        return Inertia::render('SearchResults', [
+            'products' => $products,
+            'porters' => $porters,
+            'campingPackages' => $campingPackages,
+            'mountain' => $mountain,
+            'searchMountain' => $mountainParam,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'queryKeyword' => $queryKeyword,
+        ]);
+    }
+
+    public function mountainServices(Request $request, $mountain_slug)
+    {
+        $cleanSlug = str_replace('gunung-', '', strtolower($mountain_slug));
+        $mountain = Mountain::where('slug', $mountain_slug)
+            ->orWhere('slug', 'gunung-' . $cleanSlug)
+            ->orWhere('slug', $cleanSlug)
+            ->first();
+
+        $mountainName = $mountain ? $mountain->name : ('Gunung ' . ucwords(str_replace('-', ' ', $cleanSlug)));
+        $cleanName = trim(str_replace(['Gunung ', 'gunung '], '', $mountainName));
+
+        // 1. Porters for this mountain
+        $porters = Porter::where(function($q) use ($cleanName, $mountainName) {
+            $q->where('mountain', 'LIKE', "%{$cleanName}%")
+              ->orWhere('mountain', 'LIKE', "%{$mountainName}%")
+              ->orWhere('name', 'LIKE', "%{$cleanName}%")
+              ->orWhere('description', 'LIKE', "%{$cleanName}%");
+        })->get();
+
+        // 2. Camping Packages for this mountain
+        $campingPackages = CampingPackage::where('status', 'Available')
+            ->where(function($q) use ($cleanName, $mountainName) {
+                $q->where('tags', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('tags', 'LIKE', "%{$mountainName}%")
+                  ->orWhere('name', 'LIKE', "%{$cleanName}%")
+                  ->orWhere('description', 'LIKE', "%{$cleanName}%");
+            })
+            ->get();
+
+        // 3. Products (All rental equipment available for hiking)
+        $products = Product::get();
+
+        return Inertia::render('SearchResults', [
+            'products' => $products,
+            'porters' => $porters,
+            'campingPackages' => $campingPackages,
+            'mountain' => $mountain,
+            'searchMountain' => $mountainName,
+            'startDate' => $request->get('startDate', ''),
+            'endDate' => $request->get('endDate', ''),
+        ]);
     }
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, Sparkles } from 'lucide-react';
 
 const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -75,124 +75,169 @@ const LocationSvgIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export function SiteFooter() {
-  return (
-    <footer className="bg-[#0a0a0a] text-zinc-300 mt-auto">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+  const marqueeItems = [
+    'EXPLORE MORE',
+    'HIKE TOGETHER',
+    'CAMP BETTER',
+  ];
 
-          {/* Brand Column */}
-          <div className="md:col-span-2 space-y-4">
-            <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-12 w-auto brightness-0 invert" />
-            <p className="text-base text-zinc-400 leading-relaxed max-w-md mt-8">
-              Platform sewa alat pendakian & jasa porter profesional di Wonosobo, Jawa Tengah. Melayani pendakian Gunung Prau, Sumbing, Sindoro & Dieng.
+  const repeatedItems = [...marqueeItems, ...marqueeItems, ...marqueeItems, ...marqueeItems];
+
+  return (
+    <div className="mt-auto w-full">
+      {/* Marquee Text Separator between CTA & Footer */}
+      <div className="w-full bg-[#F4FD30] py-2 overflow-hidden select-none">
+        <div className="animate-marquee-wrapper flex overflow-hidden whitespace-nowrap">
+          <div className="animate-marquee flex items-center shrink-0 gap-8 sm:gap-14 pr-8 sm:pr-14">
+            {repeatedItems.map((item, index) => (
+              <React.Fragment key={index}>
+                <span className="font-anton text-4xl md:text-5xl tracking-widest uppercase text-black transition-colors">
+                  {item}
+                </span>
+                <Sparkles className="w-6 h-6 text-black fill-black shrink-0 select-none" />
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="animate-marquee flex items-center shrink-0 gap-8 sm:gap-14 pr-8 sm:pr-14" aria-hidden="true">
+            {repeatedItems.map((item, index) => (
+              <React.Fragment key={`dup-${index}`}>
+                <span className="font-anton text-4xl md:text-5xl tracking-widest uppercase text-black transition-colors">
+                  {item}
+                </span>
+                <Sparkles className="w-6 h-6 text-black fill-black shrink-0 select-none" />
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <footer className="bg-[#0a0a0a] text-zinc-300">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+
+            {/* Brand Column */}
+            <div className="md:col-span-2 space-y-4">
+              <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-10 sm:h-12 w-auto brightness-0 invert" />
+              <p className="text-base sm:text-sm text-white leading-relaxed max-w-md mt-8">
+                Platform sewa alat pendakian & jasa porter profesional di Wonosobo, Jawa Tengah. Melayani pendakian Gunung Prau, Sumbing, Sindoro & Dieng.
+              </p>
+            </div>
+
+            {/* Navigation Links */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium tracking-wider uppercase text-zinc-400">Layanan</h3>
+              <ul className="space-y-3">
+                <li>
+                  <Link href="/sewa-alat" className="text-base text-white hover:text-white transition-colors">
+                    Sewa Alat Pendakian
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/porter-gunung" className="text-base text-white hover:text-white transition-colors">
+                    Jasa Porter & Guide
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/paket-camping" className="text-base text-white hover:text-white transition-colors">
+                    Paket Camping Browky
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    href="https://maps.app.goo.gl/xSWc6pS5EA7Mnzzo9"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-base text-white hover:text-white transition-colors"
+                  >
+                    Lokasi
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Contact Column */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium tracking-wider uppercase text-zinc-400">Kontak</h3>
+              <ul className="space-y-3.5">
+                <li>
+                  <a
+                    href="https://wa.me/6287834443012"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-base text-white hover:text-white group transition-colors"
+                  >
+                    <WhatsAppSvgIcon className="w-6 h-6 text-white group-hover:text-white transition-colors shrink-0" />
+                    <span>+62 878-3444-3012</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="mailto:hello@browkyoutdoor.com"
+                    className="flex items-center gap-3 text-base text-white hover:text-white group transition-colors"
+                  >
+                    <Mail className="w-5 h-5 text-white group-hover:text-white transition-colors shrink-0" />
+                    <span>hello@browkyoutdoor.com</span>
+                  </a>
+                </li>
+                <li className="pt-2">
+                  <div className="grid grid-cols-4 gap-4 w-full mt-2">
+                    <a
+                      href="https://www.instagram.com/browky_0utdoor/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="aspect-square w-full border border-white/30 bg-transparent flex items-center justify-center text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
+                      aria-label="Instagram Browky Outdoor"
+                      title="Instagram Browky Outdoor"
+                    >
+                      <InstagramIcon className="w-5 h-5" />
+                    </a>
+                    <a
+                      href="https://www.tiktok.com/@browky_outdoor"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="aspect-square w-full border border-white/30 bg-transparent flex items-center justify-center text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
+                      aria-label="TikTok Browky Outdoor"
+                      title="TikTok Browky Outdoor"
+                    >
+                      <TikTokIcon className="w-5 h-5" />
+                    </a>
+                    <a
+                      href="https://www.youtube.com/@browkyoutdoor"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="aspect-square w-full border border-white/30 bg-transparent flex items-center justify-center text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
+                      aria-label="YouTube Browky Outdoor"
+                      title="YouTube Browky Outdoor"
+                    >
+                      <YoutubeIcon className="w-5 h-5" />
+                    </a>
+                    <a
+                      href="https://maps.google.com/?q=Browky+Outdoor+Sewa+Alat+Hiking+Porter+Dieng+Wonosobo"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="aspect-square w-full border border-white/30 bg-transparent flex items-center justify-center text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
+                      aria-label="Google Maps Browky Outdoor Dieng"
+                      title="Google Maps Location Dieng Wonosobo"
+                    >
+                      <MapPin className="w-5 h-5" strokeWidth={2} />
+                    </a>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="border-t border-zinc-200/10">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 text-sm sm:text-base text-zinc-400 flex items-center justify-between">
+            <p>
+              © {new Date().getFullYear()} Browky Outdoor. Website by <a href="https://www.instagram.com/ralwaf/" target="_blank" rel="noopener noreferrer" className="hover:text-white text-zinc-300 transition-colors underline underline-offset-2">Ralwaf.</a>
             </p>
           </div>
-
-          {/* Navigation Links */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium tracking-wider uppercase text-white">Layanan</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/sewa-alat" className="text-base text-zinc-400 hover:text-white transition-colors">
-                  Sewa Alat Pendakian
-                </Link>
-              </li>
-              <li>
-                <Link href="/porter-gunung" className="text-base text-zinc-400 hover:text-white transition-colors">
-                  Jasa Porter & Guide
-                </Link>
-              </li>
-              <li>
-                <Link href="/paket-camping" className="text-base text-zinc-400 hover:text-white transition-colors">
-                  Paket Camping Browky
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="https://maps.app.goo.gl/xSWc6pS5EA7Mnzzo9"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-base text-zinc-400 hover:text-white transition-colors"
-                >
-                  Lokasi
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact Column */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium tracking-wider uppercase text-white">Kontak</h3>
-            <ul className="space-y-3.5">
-              <li>
-                <a
-                  href="https://wa.me/6287834443012"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-base text-zinc-400 hover:text-white group transition-colors"
-                >
-                  <WhatsAppSvgIcon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
-                  <span>+62 878-3444-3012</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="mailto:hello@browkyoutdoor.com"
-                  className="flex items-center gap-3 text-base text-zinc-400 hover:text-white group transition-colors"
-                >
-                  <Mail className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
-                  <span>hello@browkyoutdoor.com</span>
-                </a>
-              </li>
-              <li className="pt-2">
-                <div className="flex items-center gap-3">
-                  <a
-                    href="https://www.instagram.com/browky_0utdoor/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-900 hover:bg-gray-100 hover:scale-105 transition-all duration-200 shadow-xs"
-                    aria-label="Instagram Browky Outdoor"
-                    title="Instagram Browky Outdoor"
-                  >
-                    <InstagramIcon className="w-5 h-5" />
-                  </a>
-                  <a
-                    href="https://www.tiktok.com/@browky_outdoor"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-900 hover:bg-gray-100 hover:scale-105 transition-all duration-200 shadow-xs"
-                    aria-label="TikTok Browky Outdoor"
-                    title="TikTok Browky Outdoor"
-                  >
-                    <TikTokIcon className="w-5 h-5" />
-                  </a>
-                  <a
-                    href="https://maps.google.com/?q=Browky+Outdoor+Sewa+Alat+Hiking+Porter+Dieng+Wonosobo"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-900 hover:bg-gray-100 hover:scale-105 transition-all duration-200 shadow-xs"
-                    aria-label="Google Maps Browky Outdoor Dieng"
-                    title="Google Maps Location Dieng Wonosobo"
-                  >
-                    <MapPin className="w-5 h-5" strokeWidth={2} />
-                  </a>
-                </div>
-              </li>
-            </ul>
-          </div>
-
         </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="border-t border-zinc-200/10">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-base text-zinc-400">© {new Date().getFullYear()} Browky Outdoor.</p>
-          <p className="text-base text-zinc-400">
-            Website by <a href="https://www.instagram.com/ralwaf/" target="_blank" rel="noopener noreferrer" className="hover:text-white text-zinc-300 transition-colors underline underline-offset-2">Ralwaf.</a>
-          </p>
-        </div>
-      </div>
-    </footer>
+      </footer>
+    </div>
   );
 }

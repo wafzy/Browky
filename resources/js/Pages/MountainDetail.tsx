@@ -60,9 +60,33 @@ interface MountainDetailProps {
     products?: Product[];
     porters?: Porter[];
     campingPackages?: CampingPackage[];
+    activeService?: string;
+    startDate?: string;
+    endDate?: string;
 }
 
-export default function MountainDetail({ mountain, products = [], porters = [], campingPackages = [] }: MountainDetailProps) {
+export default function MountainDetail({
+    mountain,
+    products = [],
+    porters = [],
+    campingPackages = [],
+    activeService = 'all',
+    startDate = '',
+    endDate = '',
+}: MountainDetailProps) {
+    const porterSectionRef = React.useRef<HTMLDivElement>(null);
+    const campingSectionRef = React.useRef<HTMLDivElement>(null);
+    const rentalSectionRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        if (activeService === 'porter' && porterSectionRef.current) {
+            setTimeout(() => porterSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+        } else if (activeService === 'camping' && campingSectionRef.current) {
+            setTimeout(() => campingSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+        } else if (activeService === 'rental' && rentalSectionRef.current) {
+            setTimeout(() => rentalSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+        }
+    }, [activeService]);
     const imgSrc = mountain.image
         ? (mountain.image.startsWith('http') ? mountain.image : `/storage/${mountain.image}`)
         : 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=75&fm=webp';
@@ -383,6 +407,38 @@ export default function MountainDetail({ mountain, products = [], porters = [], 
             <div className="bg-white pb-12 pt-10 md:pt-16 md:pb-20">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
                     <div className="w-full lg:w-[76%] lg:ml-auto space-y-6 sm:space-y-8">
+                        {/* SEARCH FILTER ALERT BANNER */}
+                        {(activeService !== 'all' || startDate) && (
+                            <div className="p-4 bg-zinc-900 text-white rounded-none border border-zinc-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+                                <div className="flex items-center gap-3">
+                                    <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                                    <div className="text-sm font-medium">
+                                        Hasil Pencarian:{' '}
+                                        <span className="font-bold text-amber-300 uppercase">
+                                            {activeService === 'porter' ? 'Jasa Porter' : activeService === 'camping' ? 'Paket Camping' : activeService === 'rental' ? 'Sewa Alat Outdoor' : 'Semua Layanan'}
+                                        </span>{' '}
+                                        khusus <span className="font-bold text-white">{mountainDisplayName}</span>
+                                        {startDate && (
+                                            <span className="text-zinc-300 font-normal">
+                                                {' '}(Tanggal: {startDate} {endDate ? `- ${endDate}` : ''})
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (activeService === 'porter' && porterSectionRef.current) porterSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+                                        else if (activeService === 'camping' && campingSectionRef.current) campingSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+                                        else if (activeService === 'rental' && rentalSectionRef.current) rentalSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className="text-xs bg-amber-400 text-zinc-950 font-bold px-3 py-1.5 rounded-none hover:bg-amber-300 transition self-start sm:self-auto cursor-pointer"
+                                >
+                                    Lihat {activeService === 'porter' ? 'Porter' : activeService === 'camping' ? 'Paket Camping' : 'Peralatan'} ↓
+                                </button>
+                            </div>
+                        )}
+
                         {/* BREADCRUMB */}
                         <nav className="flex text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 pt-1" aria-label="Breadcrumb">
                             <ol className="flex items-center space-x-1.5 sm:space-x-2 flex-wrap">
@@ -1068,26 +1124,25 @@ export default function MountainDetail({ mountain, products = [], porters = [], 
             </section>
 
             {/* REKOMENDASI PRODUK DISEWA (RENTAL ALAT OUTDOOR) */}
-            {products.length > 0 && (
-                <section className="py-12 md:py-20 bg-white">
-                    <div className="max-w-7xl mx-auto px-4 md:px-8">
-                        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-4">
-                            <div>
-                                <h2 className="text-2xl md:text-4xl font-anton tracking-wide uppercase text-gray-900">
-                                    Peralatan yang Paling Sering Disewa
-                                </h2>
-                                <p className="text-sm sm:text-base text-gray-500 mt-1">
-                                    Pilihan perlengkapan terbaik melalui layanan Rental Alat Outdoor steril & terawat untuk pendakian {mountainDisplayName}
-                                </p>
-                            </div>
-                            {products.length > 5 && (
-                                <Link href="/sewa-alat" className="text-sm font-semibold text-gray-900 hover:text-red-600 underline underline-offset-4 flex items-center gap-1 flex-shrink-0">
-                                    Lihat Semua Alat <ArrowRight className="w-4 h-4 text-black stroke-[2.25]" />
-                                </Link>
-                            )}
+            <section ref={rentalSectionRef} className="py-12 md:py-20 bg-white border-t border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-4">
+                        <div>
+                            <h2 className="text-2xl md:text-4xl font-anton tracking-wide uppercase text-gray-900">
+                                Peralatan Outdoor {mountainDisplayName}
+                            </h2>
+                            <p className="text-sm sm:text-base text-gray-500 mt-1">
+                                Pilihan perlengkapan terbaik melalui layanan Rental Alat Outdoor steril & terawat untuk pendakian {mountainDisplayName}
+                            </p>
                         </div>
+                        {products.length > 5 && (
+                            <Link href="/sewa-alat" className="text-sm font-semibold text-gray-900 hover:text-red-600 underline underline-offset-4 flex items-center gap-1 flex-shrink-0">
+                                Lihat Semua Alat <ArrowRight className="w-4 h-4 text-black stroke-[2.25]" />
+                            </Link>
+                        )}
+                    </div>
 
-                        {/* Mobile: 1 Full Card + Slight Peek | Desktop: Static Grid */}
+                    {products.length > 0 ? (
                         <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-none">
                             <div className="flex sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 pb-2 sm:pb-0">
                                 {products.map((product) => {
@@ -1122,31 +1177,37 @@ export default function MountainDetail({ mountain, products = [], porters = [], 
                                 })}
                             </div>
                         </div>
-                    </div>
-                </section>
-            )}
+                    ) : (
+                        <div className="p-8 text-center bg-gray-50 border border-dashed border-gray-200 rounded-lg text-gray-500">
+                            Peralatan outdoor disewa untuk {mountainDisplayName} belum tersedia secara online.
+                        </div>
+                    )}
+                </div>
+            </section>
 
             {/* REKOMENDASI PORTER DIENG */}
-            {porters.length > 0 && (
-                <section className="py-12 md:py-20 bg-white">
-                    <div className="max-w-7xl mx-auto px-4 md:px-8">
-                        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-4">
-                            <div>
-                                <h2 className="text-2xl md:text-4xl font-anton tracking-wide uppercase text-gray-900">
-                                    Layanan Porter Dieng {mountainDisplayName}
-                                </h2>
-                                <p className="text-sm sm:text-base text-gray-500 mt-1">
-                                    Porter lokal profesional hafal rute pendakian {mountainDisplayName} dari basecamp hingga puncak
-                                </p>
+            <section ref={porterSectionRef} className="py-12 md:py-20 bg-white border-t border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-4">
+                        <div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-full mb-2">
+                                <UserCheck className="w-3.5 h-3.5" /> Jasa Porter {mountainDisplayName}
                             </div>
-                            {porters.length > 5 && (
-                                <Link href="/porter-gunung" className="text-sm font-semibold text-gray-900 hover:text-red-600 underline underline-offset-4 flex items-center gap-1 flex-shrink-0">
-                                    Lihat Semua Porter <ArrowRight className="w-4 h-4 text-black stroke-[2.25]" />
-                                </Link>
-                            )}
+                            <h2 className="text-2xl md:text-4xl font-anton tracking-wide uppercase text-gray-900">
+                                Layanan Porter {mountainDisplayName}
+                            </h2>
+                            <p className="text-sm sm:text-base text-gray-500 mt-1">
+                                Porter lokal profesional hafal rute pendakian {mountainDisplayName} dari basecamp hingga puncak
+                            </p>
                         </div>
+                        {porters.length > 5 && (
+                            <Link href="/porter-gunung" className="text-sm font-semibold text-gray-900 hover:text-red-600 underline underline-offset-4 flex items-center gap-1 flex-shrink-0">
+                                Lihat Semua Porter <ArrowRight className="w-4 h-4 text-black stroke-[2.25]" />
+                            </Link>
+                        )}
+                    </div>
 
-                        {/* Mobile: 1 Full Card + Slight Peek | Desktop: Static Grid */}
+                    {porters.length > 0 ? (
                         <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-none">
                             <div className="flex sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 pb-2 sm:pb-0">
                                 {porters.map((porter) => {
@@ -1181,31 +1242,50 @@ export default function MountainDetail({ mountain, products = [], porters = [], 
                                 })}
                             </div>
                         </div>
-                    </div>
-                </section>
-            )}
+                    ) : (
+                        <div className="p-8 text-center bg-zinc-50 border border-dashed border-zinc-200 rounded-lg space-y-3">
+                            <p className="text-base font-medium text-gray-700">
+                                Belum ada daftar porter khusus {mountainDisplayName} yang terdaftar secara online.
+                            </p>
+                            <p className="text-sm text-gray-500 max-w-md mx-auto">
+                                Tim Browky Outdoor menyediakan porter lokal profesional untuk {mountainDisplayName} via reservasi offline & WhatsApp.
+                            </p>
+                            <a
+                                href="https://wa.me/6287834443012?text=Halo%20Browky%20Outdoor,%20saya%20ingin%20pesan%20Jasa%20Porter%20khusus%20"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white text-xs font-semibold rounded-none hover:bg-black transition"
+                            >
+                                Tanya Admin WhatsApp Porter {mountainDisplayName}
+                            </a>
+                        </div>
+                    )}
+                </div>
+            </section>
 
             {/* REKOMENDASI PAKET CAMPING ALL-IN */}
-            {campingPackages.length > 0 && (
-                <section className="py-12 md:py-20 bg-white">
-                    <div className="max-w-7xl mx-auto px-4 md:px-8">
-                        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-4">
-                            <div>
-                                <h2 className="text-2xl md:text-4xl font-anton tracking-wide uppercase text-gray-900">
-                                    Pilihan Paket Camping All-In {mountainDisplayName}
-                                </h2>
-                                <p className="text-sm sm:text-base text-gray-500 mt-1">
-                                    Pendakian praktis tanpa ribet dengan fasilitas Paket Camping, Porter Dieng, dan Guide Dieng profesional
-                                </p>
+            <section ref={campingSectionRef} className="py-12 md:py-20 bg-white border-t border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-4">
+                        <div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-full mb-2">
+                                <PackageCheck className="w-3.5 h-3.5" /> Paket Camping {mountainDisplayName}
                             </div>
-                            {campingPackages.length > 5 && (
-                                <Link href="/paket-camping" className="text-sm font-semibold text-gray-900 hover:text-red-600 underline underline-offset-4 flex items-center gap-1 flex-shrink-0">
-                                    Lihat Semua Paket <ArrowRight className="w-4 h-4 text-black stroke-[2.25]" />
-                                </Link>
-                            )}
+                            <h2 className="text-2xl md:text-4xl font-anton tracking-wide uppercase text-gray-900">
+                                Pilihan Paket Camping All-In {mountainDisplayName}
+                            </h2>
+                            <p className="text-sm sm:text-base text-gray-500 mt-1">
+                                Pendakian praktis tanpa ribet dengan fasilitas Paket Camping, Porter Dieng, dan Guide Dieng profesional
+                            </p>
                         </div>
+                        {campingPackages.length > 5 && (
+                            <Link href="/paket-camping" className="text-sm font-semibold text-gray-900 hover:text-red-600 underline underline-offset-4 flex items-center gap-1 flex-shrink-0">
+                                Lihat Semua Paket <ArrowRight className="w-4 h-4 text-black stroke-[2.25]" />
+                            </Link>
+                        )}
+                    </div>
 
-                        {/* Mobile: 1 Full Card + Slight Peek | Desktop: Static Grid */}
+                    {campingPackages.length > 0 ? (
                         <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-none">
                             <div className="flex sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 pb-2 sm:pb-0">
                                 {campingPackages.map((pkg) => {
@@ -1239,12 +1319,29 @@ export default function MountainDetail({ mountain, products = [], porters = [], 
                                 })}
                             </div>
                         </div>
-                    </div>
-                </section>
-            )}
+                    ) : (
+                        <div className="p-8 text-center bg-zinc-50 border border-dashed border-zinc-200 rounded-lg space-y-3">
+                            <p className="text-base font-medium text-gray-700">
+                                Belum ada paket camping khusus {mountainDisplayName} yang terdaftar secara online.
+                            </p>
+                            <p className="text-sm text-gray-500 max-w-md mx-auto">
+                                Tim Browky Outdoor dapat menyiapkan Paket Camping All-In Custom untuk {mountainDisplayName} sesuai jumlah rombongan Anda.
+                            </p>
+                            <a
+                                href="https://wa.me/6287834443012?text=Halo%20Browky%20Outdoor,%20saya%20ingin%20tanya%20Paket%20Camping%20Custom%20"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white text-xs font-semibold rounded-none hover:bg-black transition"
+                            >
+                                Konsultasi Paket Custom WhatsApp
+                            </a>
+                        </div>
+                    )}
+                </div>
+            </section>
 
             {/* 16. CTA BANNER */}
-            <section className="relative overflow-hidden bg-zinc-800 py-16 text-white border-b-6 border-secondary">
+            <section className="relative overflow-hidden bg-zinc-800 py-16 text-white">
                 {/* Background accents */}
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,white_1px,transparent_1px),radial-gradient(circle_at_80%_20%,white_1px,transparent_1px)] bg-[size:40px_40px]"></div>
 

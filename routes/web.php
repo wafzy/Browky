@@ -13,12 +13,17 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 // Frontend Routes
 Route::get('/', [FrontendController::class, 'index'])->name('home');
 Route::get('/sewa-alat', [FrontendController::class, 'rental'])->name('rental');
+Route::get('/sewa-alat-{mountain_slug}', [FrontendController::class, 'rentalMountain'])->name('rental.mountain');
 Route::get('/sewa-alat/{slug}', [FrontendController::class, 'product'])->name('product');
 Route::get('/porter-gunung', [FrontendController::class, 'porter'])->name('porter');
+Route::get('/porter-{mountain_slug}', [FrontendController::class, 'porterMountain'])->name('porter.mountain');
 Route::get('/porter-gunung/{slug}', [FrontendController::class, 'porterDetail'])->name('porter.detail');
 Route::get('/paket-camping', [FrontendController::class, 'camping'])->name('camping');
+Route::get('/paket-camping-{mountain_slug}', [FrontendController::class, 'campingMountain'])->name('camping.mountain');
 Route::get('/paket-camping/{slug}', [FrontendController::class, 'campingDetail'])->name('camping.detail');
 Route::get('/gunung/{slug}', [FrontendController::class, 'mountainDetail'])->name('mountain.detail');
+Route::get('/gunung-{mountain_slug}', [FrontendController::class, 'mountainServices'])->name('mountain.services');
+Route::get('/pencarian', [FrontendController::class, 'searchResults'])->name('search.results');
 Route::get('/favorit', [FrontendController::class, 'favorit'])->name('favorit');
 Route::get('/api/search', [FrontendController::class, 'apiSearch'])->name('api.search');
 

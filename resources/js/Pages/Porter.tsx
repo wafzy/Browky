@@ -18,6 +18,9 @@ interface PorterItem {
 interface PorterProps {
     porters?: PorterItem[];
     porterCategories?: string[];
+    searchMountain?: string;
+    startDate?: string;
+    endDate?: string;
 }
 
 interface FavItem {
@@ -30,7 +33,7 @@ interface FavItem {
     timestamp: number;
 }
 
-export default function Porter({ porters = [], porterCategories = [] }: PorterProps) {
+export default function Porter({ porters = [], porterCategories = [], searchMountain = '', startDate = '', endDate = '' }: PorterProps) {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [favorites, setFavorites] = useState<(string | number)[]>([]);
 
@@ -163,15 +166,8 @@ export default function Porter({ porters = [], porterCategories = [] }: PorterPr
                     </nav>
 
                     <h1 className="text-4xl font-anton tracking-wide uppercase text-gray-900 mb-4">
-                        Jasa Porter Gunung Browky Outdoor
+                        Jasa Porter {searchMountain ? (searchMountain.toLowerCase().includes('gunung') ? searchMountain : `Gunung ${searchMountain}`) : 'Gunung'} Browky Outdoor
                     </h1>
-
-                    {/* SEO Intro Text */}
-                    <p className="text-base text-gray-500 leading-relaxed mb-8 max-w-3xl">
-                        Porter & guide pendakian profesional di kawasan <strong>Dieng dan Wonosobo, Jawa Tengah</strong>.
-                        Melayani pendakian <strong>Gunung Prau, Gunung Bismo, Gunung Pakuwaja, Gunung Sindoro, Gunung Sumbing,</strong> dan Gunung Kembang.
-                        Tim porter kami adalah warga lokal berpengalaman yang hafal setiap jalur — siap menjadi porter sekaligus <strong>guide pendakian</strong> terpercaya Anda.
-                    </p>
 
                     {/* Search Results and Category Filter */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
@@ -261,52 +257,30 @@ export default function Porter({ porters = [], porterCategories = [] }: PorterPr
                         })}
 
                         {filteredPorters.length === 0 && (
-                            <div className="col-span-full py-20 flex flex-col items-center justify-center text-center text-gray-400">
-                                <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4 text-gray-300">
-                                    <Navigation className="w-8 h-8" />
+                            <div className="col-span-full py-16 flex flex-col items-center justify-center text-center text-gray-500 bg-zinc-50 border border-dashed border-zinc-200 p-6 rounded-lg space-y-3">
+                                <div className="w-14 h-14 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400">
+                                    <Navigation className="w-6 h-6" />
                                 </div>
-                                <h3 className="text-sm font-semibold text-gray-900 mb-1">Belum ada paket porter</h3>
-                                <p className="text-xs text-gray-500">Paket layanan porter sedang dalam persiapan.</p>
+                                <h3 className="text-base font-bold text-gray-900">
+                                    Belum ada Porter khusus {searchMountain || 'kategori ini'} yang terdaftar secara online.
+                                </h3>
+                                <p className="text-xs text-gray-500 max-w-md">
+                                    Tim Browky Outdoor tetap melayani pemesanan Porter lokal profesional untuk {searchMountain || 'seluruh gunung di Dieng & Wonosobo'} via WhatsApp.
+                                </p>
+                                <a
+                                    href={`https://wa.me/6287834443012?text=Halo%20Browky%20Outdoor,%20saya%20ingin%20tanya%20Jasa%20Porter%20khusus%20${encodeURIComponent(searchMountain || 'Dieng')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white font-semibold text-xs rounded-none hover:bg-black transition"
+                                >
+                                    Tanya Admin WhatsApp Porter {searchMountain || 'Dieng'}
+                                </a>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* FAQ SECTION */}
-            <div className="bg-gray-50 py-14">
-                <div className="max-w-3xl mx-auto px-4 md:px-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-8">Pertanyaan Seputar Jasa Porter Dieng</h2>
-                    <div className="space-y-4">
-                        {[
-                            {
-                                q: "Berapa tarif porter gunung Prau & Dieng?",
-                                a: "Tarif porter Browky Outdoor mulai dari Rp 150.000 per hari. Harga bervariasi tergantung gunung dan durasi pendakian. Hubungi kami via WhatsApp untuk info tarif terbaru Gunung Prau, Bismo, Pakuwaja, Sindoro, dan Sumbing."
-                            },
-                            {
-                                q: "Porter gunung Browky melayani gunung apa saja di Wonosobo?",
-                                a: "Porter Browky Outdoor melayani pendakian di Gunung Prau, Gunung Bismo, Gunung Pakuwaja, Gunung Sindoro, Gunung Sumbing, dan Gunung Kembang di kawasan Dieng dan Wonosobo, Jawa Tengah."
-                            },
-                            {
-                                q: "Apakah porter Browky bisa menjadi guide pendakian?",
-                                a: "Ya! Porter Browky Outdoor adalah warga lokal yang sudah sangat familiar dengan jalur pendakian di kawasan Dieng Wonosobo. Mereka bisa berfungsi ganda sebagai porter sekaligus guide/penunjuk jalan yang hafal setiap rute."
-                            },
-                            {
-                                q: "Bagaimana cara pesan porter Dieng Browky Outdoor?",
-                                a: "Pemesanan porter Browky Outdoor dilakukan langsung melalui WhatsApp di +6287834443012. Pilih porter yang tersedia, tentukan tanggal & gunung tujuan, lalu konfirmasi jadwal. Mudah dan cepat!"
-                            },
-                        ].map((item, i) => (
-                            <details key={i} className="group bg-white rounded-xl border border-gray-100 p-5 cursor-pointer">
-                                <summary className="flex justify-between items-center font-semibold text-gray-900 text-sm list-none">
-                                    {item.q}
-                                    <span className="ml-4 text-gray-400 group-open:rotate-180 transition-transform duration-200">▼</span>
-                                </summary>
-                                <p className="mt-3 text-sm text-gray-600 leading-relaxed">{item.a}</p>
-                            </details>
-                        ))}
-                    </div>
-                </div>
-            </div>
         </FrontendLayout>
     );
 }
