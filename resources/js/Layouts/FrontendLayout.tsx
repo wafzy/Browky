@@ -19,7 +19,7 @@ export default function FrontendLayout({ children }: FrontendLayoutProps) {
             <SiteNavbar />
 
             {/* Main Content Area */}
-            <main className={`flex-grow ${isHome ? '' : 'pt-20'}`}>
+            <main className={`flex-grow ${isHome ? '' : 'pt-16 md:pt-20'}`}>
                 {children}
             </main>
 

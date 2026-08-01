@@ -495,7 +495,7 @@ export default function Home({
                                 <form
                                     onSubmit={handleSearchSubmit}
                                     className={cn(
-                                        "flex flex-col md:flex-row items-stretch w-full max-w-4xl text-black dark:text-white gap-2.5 md:gap-0 divide-y-0 md:divide-x divide-zinc-200 dark:divide-zinc-800 transition-colors duration-200 border border-black dark:border-white rounded-none bg-transparent md:bg-white dark:md:bg-black shadow-none",
+                                        "flex flex-col md:flex-row items-stretch w-full max-w-4xl text-black dark:text-white gap-2.5 md:gap-0 divide-y-0 md:divide-x divide-zinc-200 dark:divide-zinc-800 transition-colors duration-200 border-none md:border md:border-black dark:md:border-white rounded-none bg-transparent md:bg-white dark:md:bg-black shadow-none",
                                         isAnySearchOpen ? "bg-transparent md:bg-zinc-200 dark:bg-zinc-950" : "bg-transparent md:bg-white dark:bg-black"
                                     )}
                                 >
@@ -504,7 +504,7 @@ export default function Home({
                                         <PopoverTrigger asChild>
                                             <div
                                                 className={cn(
-                                                    "flex-1 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer select-none relative group border border-zinc-200 dark:border-zinc-800 md:border-none shadow-none",
+                                                    "flex-1 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer select-none relative group border-none shadow-none",
                                                     isMountainOpen
                                                         ? "bg-white dark:bg-zinc-900 shadow-none z-10"
                                                         : (isAnySearchOpen ? "bg-white md:bg-zinc-200 dark:bg-zinc-950/80 hover:bg-zinc-300/50" : "bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900")
@@ -615,7 +615,7 @@ export default function Home({
                                         <PopoverTrigger asChild>
                                             <div
                                                 className={cn(
-                                                    "flex-1 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer select-none relative group border border-zinc-200 dark:border-zinc-800 md:border-none shadow-none",
+                                                    "flex-1 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer select-none relative group border-none shadow-none",
                                                     isDateOpen
                                                         ? "bg-white dark:bg-zinc-900 shadow-none z-10"
                                                         : (isAnySearchOpen ? "bg-white md:bg-zinc-200 dark:bg-zinc-950/80 hover:bg-zinc-300/50" : "bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900")
@@ -692,7 +692,7 @@ export default function Home({
                                         <PopoverTrigger asChild>
                                             <div
                                                 className={cn(
-                                                    "flex-1 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer select-none relative group border border-zinc-200 dark:border-zinc-800 md:border-none shadow-none",
+                                                    "flex-1 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer select-none relative group border-none shadow-none",
                                                     isServiceOpen
                                                         ? "bg-white dark:bg-zinc-900 shadow-none z-10"
                                                         : (isAnySearchOpen ? "bg-white md:bg-zinc-200 dark:bg-zinc-950/80 hover:bg-zinc-300/50" : "bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900")

@@ -562,28 +562,28 @@ export function SiteNavbar() {
           searchOpen && "shadow-none border-b border-gray-200"
         )}
       >
-        {/* Top Navbar Row (h-20) */}
-        <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between relative">
+        {/* Top Navbar Row (h-16 on mobile, h-20 on desktop) */}
+        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-20 flex items-center justify-between relative">
           {/* Left Actions: Icon Menu & Search */}
           <div className="flex items-center gap-0 sm:gap-2 z-10">
             {/* Mobile / Main Menu Trigger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-2.5 rounded-full hover:bg-gray-100/10 transition-colors duration-300 cursor-pointer ${isHome && !scrolled && !mobileMenuOpen && !searchOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'}`}
+              className={`p-2 sm:p-2.5 rounded-full hover:bg-gray-100/10 transition-colors duration-300 cursor-pointer ${isHome && !scrolled && !mobileMenuOpen && !searchOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'}`}
               aria-label="Toggle menu"
               title="Menu Navigasi"
             >
-              {mobileMenuOpen ? <X className="w-5.5 h-5.5" strokeWidth={1.5} /> : <Menu className="w-5.5 h-5.5" strokeWidth={1.5} />}
+              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={1.5} /> : <Menu className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={1.5} />}
             </button>
 
             {/* Search Icon */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className={`p-2.5 rounded-full hover:bg-gray-100/10 transition-all duration-300 relative cursor-pointer ${searchOpen ? 'text-black bg-zinc-100 scale-105' : (isHome && !scrolled && !mobileMenuOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100')}`}
+              className={`p-2 sm:p-2.5 rounded-full hover:bg-gray-100/10 transition-all duration-300 relative cursor-pointer ${searchOpen ? 'text-black bg-zinc-100 scale-105' : (isHome && !scrolled && !mobileMenuOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100')}`}
               title="Cari Alat & Layanan"
               aria-label="Cari alat dan layanan"
             >
-              {searchOpen ? <X className="w-5.5 h-5.5 transition-transform duration-300 rotate-90" strokeWidth={1.5} /> : <Search className="w-5.5 h-5.5 transition-transform duration-300" strokeWidth={1.5} />}
+              {searchOpen ? <X className="w-5 h-5 sm:w-5.5 sm:h-5.5 transition-transform duration-300 rotate-90" strokeWidth={1.5} /> : <Search className="w-5 h-5 sm:w-5.5 sm:h-5.5 transition-transform duration-300" strokeWidth={1.5} />}
             </button>
 
             {/* Desktop Navigation Links */}
@@ -612,9 +612,9 @@ export function SiteNavbar() {
           <div className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center justify-center">
             <Link href="/" className="flex-shrink-0">
               {isHome && !scrolled && !mobileMenuOpen && !searchOpen ? (
-                <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-7 md:h-9 w-auto brightness-0 invert transition-all duration-300" />
+                <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-6 sm:h-7 md:h-9 w-auto brightness-0 invert transition-all duration-300" />
               ) : (
-                <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-7 md:h-9 w-auto transition-all duration-300" />
+                <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-6 sm:h-7 md:h-9 w-auto transition-all duration-300" />
               )}
             </Link>
           </div>
@@ -624,12 +624,12 @@ export function SiteNavbar() {
             {/* Wishlist / Love Icon */}
             <Link
               href="/favorit"
-              className={`p-2.5 rounded-full hover:bg-gray-100/10 transition-colors duration-300 relative ${isHome && !scrolled && !mobileMenuOpen && !searchOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'}`}
+              className={`p-2 sm:p-2.5 rounded-full hover:bg-gray-100/10 transition-colors duration-300 relative ${isHome && !scrolled && !mobileMenuOpen && !searchOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'}`}
               title="Wishlist Saya"
             >
-              <Heart className="w-5.5 h-5.5" strokeWidth={1.5} />
+              <Heart className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={1.5} />
               {favoritesCount > 0 && (
-                <span className="absolute top-1 right-1 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full animate-pulse">
+                <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[9px] sm:text-[10px] font-bold text-white bg-red-500 rounded-full animate-pulse">
                   {favoritesCount}
                 </span>
               )}
@@ -638,12 +638,12 @@ export function SiteNavbar() {
             {/* Cart / Keranjang Icon */}
             <Link
               href="/keranjang"
-              className={`p-2.5 rounded-full hover:bg-gray-100/10 transition-colors duration-300 relative ${isHome && !scrolled && !mobileMenuOpen && !searchOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'}`}
+              className={`p-2 sm:p-2.5 rounded-full hover:bg-gray-100/10 transition-colors duration-300 relative ${isHome && !scrolled && !mobileMenuOpen && !searchOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'}`}
               title="Keranjang Saya"
             >
-              <ShoppingBag className="w-5.5 h-5.5" strokeWidth={1.5} />
+              <ShoppingBag className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={1.5} />
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full animate-bounce">
+                <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[9px] sm:text-[10px] font-bold text-white bg-red-500 rounded-full animate-bounce">
                   {cartCount}
                 </span>
               )}
@@ -668,7 +668,7 @@ export function SiteNavbar() {
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed top-[72px] inset-x-0 bottom-0 z-40 bg-white border-t border-gray-100 py-6 px-6 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300 shadow-2xl">
+        <div className="md:hidden fixed top-[64px] md:top-[80px] inset-x-0 bottom-0 z-40 bg-white border-t border-gray-100 py-6 px-6 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300 shadow-2xl">
           <div className="flex flex-col">
             <Link
               href="/sewa-alat"

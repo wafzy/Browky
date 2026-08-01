@@ -5,6 +5,10 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
+:root {
+  color-scheme: light;
+}
+
 @custom-variant dark (&:is(.dark *));
 @source "../views/**/*.blade.php";
 @plugin "@tailwindcss/forms";

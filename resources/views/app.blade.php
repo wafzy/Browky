@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="light" style="color-scheme: light;">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
 
     <!-- Performance Preconnect & DNS Prefetch -->
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
@@ -20,16 +21,18 @@
       gtag('config', 'G-12K5XT1043');
     </script>
     
-    <!-- Dark Mode Anti-FOUC Script -->
+    <!-- Light Theme Enforcement Script -->
     <script>
         (function() {
             try {
                 var theme = localStorage.getItem('theme');
-                var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (theme === 'dark' || (!theme && supportDarkMode)) {
+                if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
+                    document.documentElement.style.colorScheme = 'dark';
                 } else {
                     document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                    document.documentElement.style.colorScheme = 'light';
                 }
             } catch (e) {}
         })();
