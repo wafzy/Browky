@@ -563,19 +563,39 @@ export function SiteNavbar() {
         )}
       >
         {/* Top Navbar Row (h-16 on mobile, h-20 on desktop) */}
-        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-20 flex items-center justify-between relative">
-          {/* Left Actions: Icon Menu & Search */}
-          <div className="flex items-center gap-0 sm:gap-2 z-10">
-            {/* Mobile / Main Menu Trigger */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-2 sm:p-2.5 rounded-full hover:bg-gray-100/10 transition-colors duration-300 cursor-pointer ${isHome && !scrolled && !mobileMenuOpen && !searchOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'}`}
-              aria-label="Toggle menu"
-              title="Menu Navigasi"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={1.5} /> : <Menu className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={1.5} />}
-            </button>
+        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-20 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0 z-10">
+            {isHome && !scrolled && !mobileMenuOpen && !searchOpen ? (
+              <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-6 sm:h-7 md:h-9 w-auto brightness-0 invert transition-all duration-300" />
+            ) : (
+              <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-6 sm:h-7 md:h-9 w-auto transition-all duration-300" />
+            )}
+          </Link>
 
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-8 z-10">
+            <Link href="/sewa-alat" className={navLinkClass('/sewa-alat')}>
+              Sewa Alat
+            </Link>
+            <Link href="/porter-gunung" className={navLinkClass('/porter-gunung')}>
+              Porter
+            </Link>
+            <Link href="/paket-camping" className={navLinkClass('/paket-camping')}>
+              Paket Camping
+            </Link>
+            <a
+              href="https://maps.app.goo.gl/xSWc6pS5EA7Mnzzo9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`text-sm font-normal uppercase tracking-wider transition-colors duration-300 py-1 ${isHome && !scrolled && !searchOpen && !mobileMenuOpen ? 'text-white/90 hover:text-white' : 'text-zinc-900 hover:text-zinc-950'}`}
+            >
+              Lokasi
+            </a>
+          </nav>
+
+          {/* Right Action Icons: Search, Wishlist (Love), Cart & Mobile Menu */}
+          <div className="flex items-center gap-1 sm:gap-2 z-10">
             {/* Search Icon */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
@@ -586,41 +606,6 @@ export function SiteNavbar() {
               {searchOpen ? <X className="w-5 h-5 sm:w-5.5 sm:h-5.5 transition-transform duration-300 rotate-90" strokeWidth={1.5} /> : <Search className="w-5 h-5 sm:w-5.5 sm:h-5.5 transition-transform duration-300" strokeWidth={1.5} />}
             </button>
 
-            {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-6 ml-4">
-              <Link href="/sewa-alat" className={navLinkClass('/sewa-alat')}>
-                Sewa Alat
-              </Link>
-              <Link href="/porter-gunung" className={navLinkClass('/porter-gunung')}>
-                Porter
-              </Link>
-              <Link href="/paket-camping" className={navLinkClass('/paket-camping')}>
-                Paket Camping
-              </Link>
-              <a
-                href="https://maps.app.goo.gl/xSWc6pS5EA7Mnzzo9"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`text-sm font-normal uppercase tracking-wider transition-colors duration-300 py-1 ${isHome && !scrolled && !searchOpen && !mobileMenuOpen ? 'text-white/90 hover:text-white' : 'text-zinc-900 hover:text-zinc-950'}`}
-              >
-                Lokasi
-              </a>
-            </nav>
-          </div>
-
-          {/* Centered Logo */}
-          <div className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center justify-center">
-            <Link href="/" className="flex-shrink-0">
-              {isHome && !scrolled && !mobileMenuOpen && !searchOpen ? (
-                <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-6 sm:h-7 md:h-9 w-auto brightness-0 invert transition-all duration-300" />
-              ) : (
-                <img src="/images/logobrowkyoutdoor.png" alt="Browky Outdoor" className="h-6 sm:h-7 md:h-9 w-auto transition-all duration-300" />
-              )}
-            </Link>
-          </div>
-
-          {/* Right Action Icons: Wishlist (Love) & Cart (Keranjang) */}
-          <div className="flex items-center gap-0 sm:gap-2 z-10">
             {/* Wishlist / Love Icon */}
             <Link
               href="/favorit"
@@ -648,6 +633,16 @@ export function SiteNavbar() {
                 </span>
               )}
             </Link>
+
+            {/* Mobile / Main Menu Trigger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`md:hidden p-2 sm:p-2.5 rounded-full hover:bg-gray-100/10 transition-colors duration-300 cursor-pointer ${isHome && !scrolled && !mobileMenuOpen && !searchOpen ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'}`}
+              aria-label="Toggle menu"
+              title="Menu Navigasi"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={1.5} /> : <Menu className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={1.5} />}
+            </button>
           </div>
         </div>
 

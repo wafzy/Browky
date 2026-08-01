@@ -169,14 +169,12 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
 
   return (
     <FrontendLayout>
-      <Head>
-        <title>{`Sewa ${product.name} Dieng & Wonosobo | Browky Outdoor`}</title>
-        <meta name="description" content={`Sewa ${product.name} di Dieng & Wonosobo murah & kualitas terjamin. Perlengkapan hiking & pendakian siap pakai untuk Gunung Prau, Sumbing, Sindoro.`} />
-        <meta name="keywords" content={`sewa ${product.name} dieng, sewa ${product.name} wonosobo, sewa alat hiking dieng, rental ${product.name}`} />
+      <Head title={`Sewa ${product.name} Dieng & Wonosobo | Browky Outdoor`}>
+        <meta name="description" content={`Sewa ${product.name} murah di Dieng & Wonosobo. ${product.description ? product.description.substring(0, 150) : ''}...`} />
+        <meta name="keywords" content={`sewa ${product.name}, rental ${product.name} dieng, sewa alat outdoor wonosobo, browky outdoor`} />
         <meta property="og:title" content={`Sewa ${product.name} Dieng & Wonosobo | Browky Outdoor`} />
-        <meta property="og:description" content={`Sewa ${product.name} murah & berkualitas di Dieng Wonosobo.`} />
-        <meta property="og:type" content="product" />
-        <meta property="og:image" content={product.cover_image && !product.cover_image.startsWith('http') ? `https://browkyoutdoor.com/storage/${product.cover_image}` : (product.cover_image || 'https://browkyoutdoor.com/images/hero-fallback.jpg')} />
+        <meta property="og:description" content={`Sewa ${product.name} kualitas terbaik & bersih di Dieng Wonosobo.`} />
+        <meta property="og:image" content={product.cover_image ? (product.cover_image.startsWith('http') ? product.cover_image : `/storage/${product.cover_image}`) : 'https://browkyoutdoor.com/images/hero-fallback.jpg'} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="Browky Outdoor" />

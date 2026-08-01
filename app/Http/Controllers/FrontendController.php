@@ -32,12 +32,36 @@ class FrontendController extends Controller
 
     public function rental(Request $request)
     {
-        $products = Product::get();
-        $categories = Product::select('category')->distinct()->pluck('category');
+        $mountainParam = $request->get('mountain');
+        $searchParam = $request->get('search');
+        
+        $query = Product::with('images');
+
+        if ($searchParam) {
+            $query->where(function($q) use ($searchParam) {
+                $q->where('name', 'LIKE', "%{$searchParam}%")
+                  ->orWhere('category', 'LIKE', "%{$searchParam}%")
+                  ->orWhere('description', 'LIKE', "%{$searchParam}%");
+            });
+        }
+
+        $products = $query->get();
+
+        // Fallback if search returns nothing or when mountain filter has no specific matches
+        if ($products->isEmpty()) {
+            $products = Product::with('images')->get();
+        }
+
+        $categories = Product::select('category')
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->pluck('category');
+
         return Inertia::render('Rental', [
             'products' => $products,
             'categories' => $categories,
-            'searchMountain' => $request->get('mountain', ''),
+            'searchMountain' => $mountainParam ?? '',
             'startDate' => $request->get('startDate', ''),
             'endDate' => $request->get('endDate', ''),
         ]);
@@ -251,7 +275,15 @@ class FrontendController extends Controller
             })
             ->get();
 
-        $categories = Product::select('category')->distinct()->pluck('category');
+        if ($products->isEmpty()) {
+            $products = Product::with('images')->get();
+        }
+
+        $categories = Product::select('category')
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->pluck('category');
 
         return Inertia::render('Rental', [
             'products' => $products,

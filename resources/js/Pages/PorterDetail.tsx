@@ -151,8 +151,7 @@ export default function PorterDetail({ porter, relatedPorters = [] }: PorterDeta
 
   return (
     <FrontendLayout>
-      <Head>
-        <title>{`Jasa Porter Dieng ${porter.name} | Gunung Prau & Wonosobo | Browky`}</title>
+      <Head title={`Jasa Porter Dieng ${porter.name} | Gunung Prau & Wonosobo | Browky`}>
         <meta name="description" content={`Sewa jasa porter Dieng ${porter.name} untuk pendakian Gunung Prau, Sumbing, Sindoro. Berpengalaman & hafal rute.`} />
         <link rel="canonical" href={`https://browkyoutdoor.com/porter-gunung/${porter.slug}`} />
       </Head>

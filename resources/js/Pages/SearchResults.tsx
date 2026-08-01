@@ -92,8 +92,7 @@ export default function SearchResults({
 
     return (
         <FrontendLayout>
-            <Head>
-                <title>{getFormattedHeading()} | Browky Outdoor</title>
+            <Head title={`${getFormattedHeading()} | Browky Outdoor`}>
                 <meta name="description" content="Temukan alat outdoor, jasa porter gunung, dan paket camping terbaik di Dieng Wonosobo." />
             </Head>
 

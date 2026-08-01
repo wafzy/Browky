@@ -266,8 +266,7 @@ export default function MountainDetail({
 
     return (
         <FrontendLayout>
-            <Head>
-                <title>{`Panduan Pendakian ${mountainDisplayName} Dieng Wonosobo | Porter, Guide & Rental Alat Outdoor | Browky Outdoor`}</title>
+            <Head title={`Panduan Pendakian ${mountainDisplayName} Dieng Wonosobo | Porter, Guide & Rental Alat Outdoor | Browky Outdoor`}>
                 <meta name="description" content={`Panduan pendakian ${mountainDisplayName} (${mountain.elevation || '2.500+'} MDPL) Dieng Wonosobo 2026. Penyedia Porter ${mountainDisplayName}, Porter Dieng, Guide Dieng profesional, Sewa & Rental Alat Outdoor steril Wonosobo, serta Paket Camping ${mountainDisplayName} All-In.`} />
                 <meta name="keywords" content={`sewa alat outdoor dieng, sewa alat outdoor wonosobo, rental alat outdoor dieng, rental alat outdoor wonosobo, porter ${lowerName}, porter ${cleanName.toLowerCase()}, porter dieng, porter wonosobo, guide ${lowerName}, guide ${cleanName.toLowerCase()}, guide dieng, guide wonosobo, paket camping ${lowerName}, paket camping ${cleanName.toLowerCase()}, paket camping dieng, pendakian ${mountainDisplayName}, basecamp ${mountainDisplayName}`} />
                 <meta property="og:title" content={`Panduan Pendakian ${mountainDisplayName} Dieng Wonosobo | Browky Outdoor`} />

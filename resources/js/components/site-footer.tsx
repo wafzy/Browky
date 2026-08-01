@@ -75,42 +75,8 @@ const LocationSvgIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export function SiteFooter() {
-  const marqueeItems = [
-    'EXPLORE MORE',
-    'HIKE TOGETHER',
-    'CAMP BETTER',
-  ];
-
-  const repeatedItems = [...marqueeItems, ...marqueeItems, ...marqueeItems, ...marqueeItems];
-
   return (
     <div className="mt-auto w-full">
-      {/* Marquee Text Separator between CTA & Footer */}
-      <div className="w-full bg-[#F4FD30] py-2 overflow-hidden select-none">
-        <div className="animate-marquee-wrapper flex overflow-hidden whitespace-nowrap">
-          <div className="animate-marquee flex items-center shrink-0 gap-8 sm:gap-14 pr-8 sm:pr-14">
-            {repeatedItems.map((item, index) => (
-              <React.Fragment key={index}>
-                <span className="font-anton text-4xl md:text-5xl tracking-widest uppercase text-black transition-colors">
-                  {item}
-                </span>
-                <Sparkles className="w-6 h-6 text-black fill-black shrink-0 select-none" />
-              </React.Fragment>
-            ))}
-          </div>
-          <div className="animate-marquee flex items-center shrink-0 gap-8 sm:gap-14 pr-8 sm:pr-14" aria-hidden="true">
-            {repeatedItems.map((item, index) => (
-              <React.Fragment key={`dup-${index}`}>
-                <span className="font-anton text-4xl md:text-5xl tracking-widest uppercase text-black transition-colors">
-                  {item}
-                </span>
-                <Sparkles className="w-6 h-6 text-black fill-black shrink-0 select-none" />
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <footer className="bg-[#0a0a0a] text-zinc-300">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">

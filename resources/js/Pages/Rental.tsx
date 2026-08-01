@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Head, usePage } from '@inertiajs/react';
 import FrontendLayout from '@/Layouts/FrontendLayout';
-import { Heart, Box, Flame, Star, Tag, ThumbsUp } from 'lucide-react';
+import { Heart, Box, Flame, Star, Tag, ThumbsUp, ChevronRight, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Product {
@@ -142,8 +142,7 @@ export default function Rental({ products = [], categories = [], searchMountain:
 
     return (
         <FrontendLayout>
-            <Head>
-                <title>Sewa Alat Hiking {searchMountain ? getMountainHeadingText() : 'Dieng & Wonosobo'} Lengkap | Browky Outdoor</title>
+            <Head title={`Sewa Alat Hiking ${searchMountain ? getMountainHeadingText() : 'Dieng & Wonosobo'} Lengkap | Browky Outdoor`}>
                 <meta name="description" content="Rental & sewa alat hiking Dieng Wonosobo lengkap: tenda waterproof, carrier, sleeping bag, matras, kompor camping & perlengkapan outdoor murah siap pakai." />
                 <meta name="keywords" content="sewa alat hiking dieng, sewa alat pendakian dieng, sewa tenda dieng, sewa perlengkapan pendakian wonosobo, rental outdoor dieng, sewa carrier dieng, sewa alat camping wonosobo" />
                 <meta property="og:title" content="Sewa Alat Hiking Dieng & Wonosobo Lengkap | Browky Outdoor" />
@@ -167,16 +166,24 @@ export default function Rental({ products = [], categories = [], searchMountain:
                     {/* Breadcrumbs */}
                     <nav className="flex text-xs md:text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
                         <ol className="flex items-center space-x-1.5 md:space-x-2">
-                            <li><a href="/" className="hover:text-gray-900 transition">Beranda</a></li>
-                            <li><span className="text-gray-400 mx-1">/</span></li>
-                            <li className="text-gray-900 font-medium">Sewa Alat Pendakian</li>
+                            <li>
+                                <Link href="/" className="hover:text-gray-900 transition">
+                                    Beranda
+                                </Link>
+                            </li>
+                            <li>
+                                <ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+                            </li>
+                            <li className="text-gray-900 font-medium">
+                                Sewa Alat Pendakian
+                            </li>
                         </ol>
                     </nav>
-                    <h1 className="text-4xl font-anton tracking-wide uppercase text-gray-900 mb-6">
+                    <h1 className="text-4xl font-anton tracking-wide uppercase text-gray-900 mb-4">
                         Sewa Alat Pendakian {searchMountain ? getMountainHeadingText() : ''} Browky Outdoor
                     </h1>
                     
-                    {/* Search Results and Category Filter */}
+                    {/* Search Results Counter and Category Filter (Porter Style) */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
                         <div className="text-base text-gray-600">
                             <span className="font-medium text-gray-900">{filteredProducts.length}</span> Hasil pencarian
@@ -189,7 +196,7 @@ export default function Rental({ products = [], categories = [], searchMountain:
                             >
                                 Semua
                             </button>
-                            {(categories || []).map((category) => (
+                            {(categories || []).filter(Boolean).map((category) => (
                                 <button 
                                     key={category}
                                     onClick={() => setSelectedCategory(category)}

@@ -167,8 +167,7 @@ export default function CampingDetail({ package: packageItem, relatedPackages = 
 
   return (
     <FrontendLayout>
-      <Head>
-        <title>{`Paket Camping Dieng - ${packageItem.name} | Browky Outdoor`}</title>
+      <Head title={`Paket Camping Dieng - ${packageItem.name} | Browky Outdoor`}>
         <meta name="description" content={`Sewa & pesan ${packageItem.name} di Dieng Wonosobo. Paket camping gunung lengkap, tenda & perlengkapan outdoor.`} />
         <link rel="canonical" href={`https://browkyoutdoor.com/paket-camping/${packageItem.slug}`} />
       </Head>
